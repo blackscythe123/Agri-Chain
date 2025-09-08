@@ -1,0 +1,17 @@
+{
+  "name": "agri-truth-chain-server",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "stripe": "^16.6.0",
+    "body-parser": "^1.20.3",
+    "viem": "^2.37.3"
+  }
+}
