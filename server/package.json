@@ -4,14 +4,32 @@
   "type": "module",
   "version": "0.1.0",
   "scripts": {
-    "dev": "node --watch src/index.js",
-    "start": "node src/index.js"
+    "dev": "NODE_ENV=development tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "NODE_ENV=production node --loader tsx dist/index.js",
+    "clean": "rm -rf dist",
+    "prebuild": "npm run clean",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "dotenv": "^16.4.5",
-    "express": "^4.19.2",
-    "stripe": "^16.6.0",
+    "@types/cors": "^2.8.19",
     "body-parser": "^1.20.3",
-    "viem": "^2.37.3"
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "ethers": "^6.15.0",
+    "express": "^4.21.2",
+    "ipfs-http-client": "^60.0.1",
+    "multer": "^2.0.2",
+    "stripe": "^14.17.0",
+    "viem": "^2.37.7"
+  },
+  "devDependencies": {
+    "@types/body-parser": "^1.19.5",
+    "@types/express": "^4.17.21",
+    "@types/multer": "^1.4.11",
+    "@types/node": "^20.11.0",
+    "ts-node-dev": "^2.0.0",
+    "tsx": "^4.20.5",
+    "typescript": "^5.3.3"
   }
 }

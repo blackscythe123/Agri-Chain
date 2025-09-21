@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Leaf, 
-  Menu, 
-  X, 
-  QrCode, 
-  Users, 
+import {
+  Leaf,
+  Menu,
+  X,
+  QrCode,
+  Users,
   Shield,
   ChevronDown
 } from "lucide-react";
@@ -15,8 +15,7 @@ const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const navItems = [
-    { label: "Dashboard", href: "/#dashboard" },
-    { label: "About", href: "/#about" }
+    { label: "Dashboard", href: "/#dashboard" }
   ];
 
   return (
@@ -49,10 +48,10 @@ const Navigation = () => {
 
           {/* Actions */}
           <div className="hidden md:flex items-center gap-4">
-      <a href="/login">
+            <a href="/login">
               <Button variant="hero" size="sm">
                 <Users className="w-4 h-4 mr-2" />
-        Login
+                Login
               </Button>
             </a>
           </div>
@@ -69,7 +68,7 @@ const Navigation = () => {
         </div>
 
         {/* Mobile Menu */}
-            {isMenuOpen && (
+        {isMenuOpen && (
           <div className="md:hidden py-4 space-y-4 border-t border-border animate-fade-in">
             {navItems.map((item) => (
               <a
@@ -82,12 +81,12 @@ const Navigation = () => {
               </a>
             ))}
             <div className="pt-4 space-y-2">
-                  <a href="/join" onClick={() => setIsMenuOpen(false)}>
-                    <Button variant="hero" size="sm" className="w-full justify-start">
-                      <Users className="w-4 h-4 mr-2" />
-                      Join Platform
-                    </Button>
-                  </a>
+              <a href="/join" onClick={() => setIsMenuOpen(false)}>
+                <Button variant="hero" size="sm" className="w-full justify-start">
+                  <Users className="w-4 h-4 mr-2" />
+                  Join Platform
+                </Button>
+              </a>
             </div>
           </div>
         )}

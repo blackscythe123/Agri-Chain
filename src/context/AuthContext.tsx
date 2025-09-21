@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
-export type Role = "farmer" | "distributor" | "retailer" | "consumer" | "admin";
+export type Role = "farmer" | "distributor" | "retailer" | "consumer" | "admin" | "verifier";
 export type AuthUser = { role: Role; email?: string; address?: string } | null;
 
 type AuthCtx = {

@@ -9,6 +9,12 @@ import { privateKeyToAccount } from 'viem/accounts'
 import { arbitrumSepolia } from 'viem/chains'
 import { AGRI_TRUTH_CHAIN_ABI, AGRI_TRUTH_CHAIN_ADDRESS } from './contract.js'
 
+// Import route files
+import farmerRoutes from './routes/farmerRoutes.js';
+import verificationRoutes from './routes/verificationRoutes.js';
+import supplyChainRoutes from './routes/supplyChainRoutes.js';
+import consumerRoutes from './routes/consumerRoutes.js';
+
 // Default EOAs for testing when inputs are missing
 const DEFAULT_ADDRESSES = {
   FARMER: '0x1111111111111111111111111111111111111111',
@@ -71,6 +77,12 @@ if (account && isValidAddress(CONTRACT_ADDRESS) && isSameAddress(CONTRACT_ADDRES
   console.warn('[server] WARNING: Contract address equals relayer address (EOA). This is not a contract. Update AGRI_TRUTH_CHAIN_ADDRESS in server/.env to your deployed contract address.')
 }
 
+// Add API routes
+app.use('/api/farmers', farmerRoutes);
+app.use('/api/verification', verificationRoutes);
+app.use('/api/supply-chain', supplyChainRoutes);
+app.use('/api/consumer', consumerRoutes);
+
 // Raw body is required for Stripe signature verification
 app.post('/webhook', bodyParser.raw({ type: 'application/json' }), async (req, res) => {
   const sig = req.headers['stripe-signature']
@@ -99,7 +111,7 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), async (req, r
     const batchIdStr = meta.batchId
     const batchId = batchIdStr && /^[0-9]+$/.test(batchIdStr) ? BigInt(batchIdStr) : null
 
-  if (event.type === 'checkout.session.completed' && batchId) {
+    if (event.type === 'checkout.session.completed' && batchId) {
       if (!wallet || !account) {
         console.warn('[webhook] relayer not configured; skipping on-chain log')
       } else if (!isValidAddress(CONTRACT_ADDRESS)) {
@@ -174,7 +186,7 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), async (req, r
         processingSessions.delete(id)
         processedSessions.add(id)
       }
-    } catch {}
+    } catch { }
   }
 })
 
@@ -225,18 +237,18 @@ app.get('/api/relayer-status', (req, res) => {
 app.post('/api/register-batch', async (req, res) => {
   try {
     if (!wallet || !account) return res.status(500).json({ error: 'relayer_not_configured' })
-  if (!isValidAddress(CONTRACT_ADDRESS)) return res.status(400).json({ error: 'invalid_contract_address', address: CONTRACT_ADDRESS })
-  const { cropType, quantityKg, basePriceINR, harvestDate, metadataCID, minPriceINR, farmerAddress } = req.body || {}
+    if (!isValidAddress(CONTRACT_ADDRESS)) return res.status(400).json({ error: 'invalid_contract_address', address: CONTRACT_ADDRESS })
+    const { cropType, quantityKg, basePriceINR, harvestDate, metadataCID, minPriceINR, farmerAddress } = req.body || {}
     if (!cropType || String(cropType).trim() === '') return res.status(400).json({ error: 'missing_crop_type' })
     if (quantityKg == null || Number(quantityKg) <= 0) return res.status(400).json({ error: 'invalid_quantity' })
     if (!harvestDate || Number(harvestDate) <= 0) return res.status(400).json({ error: 'invalid_harvest_date' })
-  const baseInr = BigInt(basePriceINR ?? 0)
-  if (baseInr <= 0n) return res.status(400).json({ error: 'invalid_base_price' })
+    const baseInr = BigInt(basePriceINR ?? 0)
+    if (baseInr <= 0n) return res.status(400).json({ error: 'invalid_base_price' })
 
     // send registerBatch
     const wantsFor = farmerAddress && /^0x[0-9a-fA-F]{40}$/.test(farmerAddress)
     const metaCID = (metadataCID && String(metadataCID).trim() !== '') ? metadataCID : ('meta:' + JSON.stringify({
-      kind: 'registration', cropType, quantityKg: Number(quantityKg), basePriceINR: baseInr.toString(), harvestDate: Number(harvestDate), minPriceINR: (minPriceINR!=null) ? BigInt(minPriceINR).toString() : undefined
+      kind: 'registration', cropType, quantityKg: Number(quantityKg), basePriceINR: baseInr.toString(), harvestDate: Number(harvestDate), minPriceINR: (minPriceINR != null) ? BigInt(minPriceINR).toString() : undefined
     }))
     const argsFor = [farmerAddress, cropType, BigInt(quantityKg), baseInr, BigInt(harvestDate), metaCID]
     const argsSimple = [cropType, BigInt(quantityKg), baseInr, BigInt(harvestDate), metaCID]
@@ -277,16 +289,16 @@ app.post('/api/register-batch', async (req, res) => {
     }
 
     // set min price if provided
-  const minInrComputed = (minPriceINR != null) ? BigInt(minPriceINR) : null
-  if (minInrComputed != null && batchId != null) {
+    const minInrComputed = (minPriceINR != null) ? BigInt(minPriceINR) : null
+    if (minInrComputed != null && batchId != null) {
       await wallet.writeContract({
         address: CONTRACT_ADDRESS,
         abi: AGRI_TRUTH_CHAIN_ABI,
-    functionName: 'setMinPriceInr',
-    args: [batchId, BigInt(minInrComputed)]
+        functionName: 'setMinPriceInr',
+        args: [batchId, BigInt(minInrComputed)]
       })
     }
-  // Metadata mirroring via payments/shipments removed in INR-only model
+    // Metadata mirroring via payments/shipments removed in INR-only model
     // If we used fallback registerBatch, ensure the farmer is the owner
     if (usedFallback && wantsFor && batchId != null) {
       try {
@@ -298,8 +310,8 @@ app.post('/api/register-batch', async (req, res) => {
     }
     res.json({ ok: true, batchId: batchId ? batchId.toString() : null, tx: hash, usedFallback })
   } catch (e) {
-  console.error('register-batch failed', e)
-  res.status(500).json({ error: 'register_failed', message: e?.message || String(e) })
+    console.error('register-batch failed', e)
+    res.status(500).json({ error: 'register_failed', message: e?.message || String(e) })
   }
 })
 
@@ -336,7 +348,7 @@ app.get('/api/batches', async (req, res) => {
         if (!seen.has(id)) { seen.add(id); ids.push(id) }
       }
     }
-  const results = await Promise.all(ids.map(async (id) => {
+    const results = await Promise.all(ids.map(async (id) => {
       let b
       try {
         b = await client.readContract({ address: CONTRACT_ADDRESS, abi: AGRI_TRUTH_CHAIN_ABI, functionName: 'batches', args: [id] })
@@ -344,7 +356,7 @@ app.get('/api/batches', async (req, res) => {
         b = null
       }
       let record
-  if (b) {
+      if (b) {
         record = {
           id: Number(b[0]),
           currentOwner: b[1],
@@ -383,11 +395,11 @@ app.get('/api/batches', async (req, res) => {
               if ((!record.metadataCID || record.metadataCID === '') && last.args?.metadataCID) record.metadataCID = last.args.metadataCID
               if (!record.createdAt && last.blockNumber) {
                 try { const blk = await client.getBlock({ blockNumber: last.blockNumber }); record.createdAt = blk?.timestamp ? Number(blk.timestamp) : record.createdAt }
-                catch {}
+                catch { }
               }
             }
           }
-        } catch {}
+        } catch { }
       } else {
         // Legacy fallback via event log
         const logs = await client.getLogs({
@@ -403,7 +415,7 @@ app.get('/api/batches', async (req, res) => {
           try {
             const blk = await client.getBlock({ blockNumber: last.blockNumber })
             createdAt = blk?.timestamp ? Number(blk.timestamp) : 0
-          } catch {}
+          } catch { }
         }
         const farmer = last?.args?.farmer || DEFAULT_ADDRESSES.FARMER
         const cropType = last?.args?.cropType || ''
@@ -435,14 +447,14 @@ app.get('/api/batches', async (req, res) => {
         if ((record.minPriceINR === '0' || record.minPriceINR === 0) && (record.basePriceINR && record.basePriceINR !== '0')) {
           record.minPriceINR = record.basePriceINR.toString()
         }
-  }
+      }
 
       // Enriched aliases
       const role = record.currentOwner?.toLowerCase?.() === record.farmer?.toLowerCase?.() ? 'farmer'
         : record.currentOwner?.toLowerCase?.() === record.distributor?.toLowerCase?.() ? 'distributor'
-        : record.currentOwner?.toLowerCase?.() === record.retailer?.toLowerCase?.() ? 'retailer'
-        : record.currentOwner?.toLowerCase?.() === record.consumer?.toLowerCase?.() ? 'consumer'
-        : 'unknown'
+          : record.currentOwner?.toLowerCase?.() === record.retailer?.toLowerCase?.() ? 'retailer'
+            : record.currentOwner?.toLowerCase?.() === record.consumer?.toLowerCase?.() ? 'consumer'
+              : 'unknown'
       // Keep raw epoch seconds in the response; UI can format if needed
       const dates = {
         harvest: record.harvestDate,
@@ -458,7 +470,7 @@ app.get('/api/batches', async (req, res) => {
         byRetailerINR: record.priceByRetailerINR
       }
 
-  // Removed enrichment from payments/shipments; rely on direct tuple + BatchRegistered event only
+      // Removed enrichment from payments/shipments; rely on direct tuple + BatchRegistered event only
 
       // Normalize role addresses: if missing or zero, use defaults; avoid accidentally equating consumer to distributor unless set
       if (!record.distributor || record.distributor === '0x0000000000000000000000000000000000000000') record.distributor = DEFAULT_ADDRESSES.DISTRIBUTOR
@@ -484,18 +496,18 @@ app.get('/api/batches', async (req, res) => {
 // Read: single batch with shipments & payments
 app.get('/api/batch/:id', async (req, res) => {
   try {
-  if (!isValidAddress(CONTRACT_ADDRESS)) return res.status(400).json({ error: 'invalid_contract_address', address: CONTRACT_ADDRESS })
+    if (!isValidAddress(CONTRACT_ADDRESS)) return res.status(400).json({ error: 'invalid_contract_address', address: CONTRACT_ADDRESS })
     if (account && isSameAddress(CONTRACT_ADDRESS, account.address)) {
       return res.status(400).json({ error: 'address_matches_relayer', address: CONTRACT_ADDRESS })
     }
     const idStr = req.params.id
     if (!/^[0-9]+$/.test(idStr)) return res.status(400).json({ error: 'invalid_id' })
     const id = BigInt(idStr)
-  if (!(await hasContractCode())) return res.status(400).json({ error: 'not_a_contract', address: CONTRACT_ADDRESS })
-  let b
+    if (!(await hasContractCode())) return res.status(400).json({ error: 'not_a_contract', address: CONTRACT_ADDRESS })
+    let b
     try {
       b = await client.readContract({ address: CONTRACT_ADDRESS, abi: AGRI_TRUTH_CHAIN_ABI, functionName: 'batches', args: [id] })
-    } catch {}
+    } catch { }
     let batch
     if (b) {
       const exists = b[12]
@@ -523,18 +535,18 @@ app.get('/api/batch/:id', async (req, res) => {
       if ((batch.minPriceINR === '0' || batch.minPriceINR === 0) && (batch.basePriceINR && batch.basePriceINR !== '0')) {
         batch.minPriceINR = batch.basePriceINR.toString()
       }
-  // Removed slow event-log overlays to speed up response
+      // Removed slow event-log overlays to speed up response
       // Patch from metadataCID if it contains embedded meta JSON
-    try {
+      try {
         if (typeof batch.metadataCID === 'string' && batch.metadataCID.startsWith('meta:')) {
           const m = JSON.parse(batch.metadataCID.slice(5))
           if (m?.cropType && (!batch.cropType || batch.cropType === '')) batch.cropType = m.cropType
           if (m?.quantityKg && (!batch.quantityKg || batch.quantityKg === 0)) batch.quantityKg = Number(m.quantityKg)
-      if (m?.basePriceINR && (batch.basePriceINR === '0' || !batch.basePriceINR)) batch.basePriceINR = String(m.basePriceINR)
+          if (m?.basePriceINR && (batch.basePriceINR === '0' || !batch.basePriceINR)) batch.basePriceINR = String(m.basePriceINR)
           if (m?.harvestDate && (!batch.harvestDate || batch.harvestDate === 0)) batch.harvestDate = Number(m.harvestDate)
-      if (m?.minPriceINR && (batch.minPriceINR === '0' || !batch.minPriceINR)) batch.minPriceINR = String(m.minPriceINR)
+          if (m?.minPriceINR && (batch.minPriceINR === '0' || !batch.minPriceINR)) batch.minPriceINR = String(m.minPriceINR)
         }
-      } catch {}
+      } catch { }
     } else {
       // Fast-fail instead of scanning events across the chain
       return res.status(404).json({ error: 'not_found' })
@@ -542,9 +554,9 @@ app.get('/api/batch/:id', async (req, res) => {
     // Enriched aliases
     const currentHolderRole = batch.currentOwner?.toLowerCase?.() === batch.farmer?.toLowerCase?.() ? 'farmer'
       : batch.currentOwner?.toLowerCase?.() === batch.distributor?.toLowerCase?.() ? 'distributor'
-      : batch.currentOwner?.toLowerCase?.() === batch.retailer?.toLowerCase?.() ? 'retailer'
-      : batch.currentOwner?.toLowerCase?.() === batch.consumer?.toLowerCase?.() ? 'consumer'
-      : 'unknown'
+        : batch.currentOwner?.toLowerCase?.() === batch.retailer?.toLowerCase?.() ? 'retailer'
+          : batch.currentOwner?.toLowerCase?.() === batch.consumer?.toLowerCase?.() ? 'consumer'
+            : 'unknown'
     const dates = {
       harvest: batch.harvestDate,
       created: batch.createdAt,
@@ -585,14 +597,14 @@ app.get('/api/chain-info', async (req, res) => {
       if (account && isValidAddress(CONTRACT_ADDRESS)) {
         isRelayerVerifier = await client.readContract({ address: CONTRACT_ADDRESS, abi: AGRI_TRUTH_CHAIN_ABI, functionName: 'verifiers', args: [account.address] })
       }
-    } catch {}
+    } catch { }
     res.json({
       chain: 'arbitrum-sepolia',
       chainId: arbitrumSepolia.id,
       rpcUrl: rpcUrl || null,
       contractAddress: CONTRACT_ADDRESS,
-  relayerAddress: account?.address || null,
-  addressMatchesRelayer: account ? isSameAddress(CONTRACT_ADDRESS, account.address) : false,
+      relayerAddress: account?.address || null,
+      addressMatchesRelayer: account ? isSameAddress(CONTRACT_ADDRESS, account.address) : false,
       hasBytecode: !!code,
       blockNumber: blockNumber ? blockNumber.toString() : null,
       isRelayerVerifier: isRelayerVerifier
@@ -619,18 +631,18 @@ app.get('/api/debug/batch-raw/:id', async (req, res) => {
     } catch (e) {
       // ignore, use fallback
     }
-  const logs = await client.getLogs({ address: CONTRACT_ADDRESS, abi: AGRI_TRUTH_CHAIN_ABI, eventName: 'BatchRegistered', fromBlock: 0n, args: { batchId: id } })
+    const logs = await client.getLogs({ address: CONTRACT_ADDRESS, abi: AGRI_TRUTH_CHAIN_ABI, eventName: 'BatchRegistered', fromBlock: 0n, args: { batchId: id } })
     const last = logs[logs.length - 1]
     let createdAt = 0
     if (last?.blockNumber) {
-      try { const blk = await client.getBlock({ blockNumber: last.blockNumber }); createdAt = blk?.timestamp ? Number(blk.timestamp) : 0 } catch {}
+      try { const blk = await client.getBlock({ blockNumber: last.blockNumber }); createdAt = blk?.timestamp ? Number(blk.timestamp) : 0 } catch { }
     }
     if (last) {
       fallback = {
         farmer: last.args?.farmer || null,
         cropType: last.args?.cropType || null,
         quantityKg: last.args?.quantityKg ? last.args.quantityKg.toString() : null,
-  basePriceINR: last.args?.basePriceINR ? last.args.basePriceINR.toString() : null,
+        basePriceINR: last.args?.basePriceINR ? last.args.basePriceINR.toString() : null,
         harvestDate: last.args?.harvestDate ? Number(last.args.harvestDate) : null,
         metadataCID: last.args?.metadataCID || null,
         createdAt
@@ -711,8 +723,8 @@ app.post('/api/transfer', async (req, res) => {
   try {
     if (!wallet || !account) return res.status(500).json({ error: 'relayer_not_configured' })
     if (!isValidAddress(CONTRACT_ADDRESS)) return res.status(400).json({ error: 'invalid_contract_address', address: CONTRACT_ADDRESS })
-  const { batchId } = req.body || {}
-  const toAddress = (req.body?.toAddress && /^0x[0-9a-fA-F]{40}$/.test(req.body.toAddress)) ? req.body.toAddress : DEFAULT_ADDRESSES.DISTRIBUTOR
+    const { batchId } = req.body || {}
+    const toAddress = (req.body?.toAddress && /^0x[0-9a-fA-F]{40}$/.test(req.body.toAddress)) ? req.body.toAddress : DEFAULT_ADDRESSES.DISTRIBUTOR
     if (!batchId || !/^[0-9]+$/.test(String(batchId))) return res.status(400).json({ error: 'invalid_batch_id' })
     if (!isValidAddress(toAddress)) return res.status(400).json({ error: 'invalid_to_address' })
     const code = await client.getBytecode({ address: CONTRACT_ADDRESS })
@@ -734,13 +746,13 @@ app.post('/api/set-price-by-distributor', async (req, res) => {
   try {
     if (!wallet || !account) return res.status(500).json({ error: 'relayer_not_configured' })
     if (!isValidAddress(CONTRACT_ADDRESS)) return res.status(400).json({ error: 'invalid_contract_address', address: CONTRACT_ADDRESS })
-  const { batchId, priceINR } = req.body || {}
+    const { batchId, priceINR } = req.body || {}
     if (!batchId || !/^[0-9]+$/.test(String(batchId))) return res.status(400).json({ error: 'invalid_batch_id' })
     const code = await client.getBytecode({ address: CONTRACT_ADDRESS })
     if (!code) return res.status(400).json({ error: 'not_a_contract', address: CONTRACT_ADDRESS })
-  const inr = BigInt(priceINR ?? 0)
-  if (inr <= 0n) return res.status(400).json({ error: 'invalid_price' })
-  const tx = await wallet.writeContract({ address: CONTRACT_ADDRESS, abi: AGRI_TRUTH_CHAIN_ABI, functionName: 'setPriceByDistributorInr', args: [BigInt(batchId), inr] })
+    const inr = BigInt(priceINR ?? 0)
+    if (inr <= 0n) return res.status(400).json({ error: 'invalid_price' })
+    const tx = await wallet.writeContract({ address: CONTRACT_ADDRESS, abi: AGRI_TRUTH_CHAIN_ABI, functionName: 'setPriceByDistributorInr', args: [BigInt(batchId), inr] })
     await client.waitForTransactionReceipt({ hash: tx })
     res.json({ ok: true, tx })
   } catch (e) {
@@ -754,13 +766,13 @@ app.post('/api/set-price-by-retailer', async (req, res) => {
   try {
     if (!wallet || !account) return res.status(500).json({ error: 'relayer_not_configured' })
     if (!isValidAddress(CONTRACT_ADDRESS)) return res.status(400).json({ error: 'invalid_contract_address', address: CONTRACT_ADDRESS })
-  const { batchId, priceINR } = req.body || {}
+    const { batchId, priceINR } = req.body || {}
     if (!batchId || !/^[0-9]+$/.test(String(batchId))) return res.status(400).json({ error: 'invalid_batch_id' })
     const code = await client.getBytecode({ address: CONTRACT_ADDRESS })
     if (!code) return res.status(400).json({ error: 'not_a_contract', address: CONTRACT_ADDRESS })
-  const inr = BigInt(priceINR ?? 0)
-  if (inr <= 0n) return res.status(400).json({ error: 'invalid_price' })
-  const tx = await wallet.writeContract({ address: CONTRACT_ADDRESS, abi: AGRI_TRUTH_CHAIN_ABI, functionName: 'setPriceByRetailerInr', args: [BigInt(batchId), inr] })
+    const inr = BigInt(priceINR ?? 0)
+    if (inr <= 0n) return res.status(400).json({ error: 'invalid_price' })
+    const tx = await wallet.writeContract({ address: CONTRACT_ADDRESS, abi: AGRI_TRUTH_CHAIN_ABI, functionName: 'setPriceByRetailerInr', args: [BigInt(batchId), inr] })
     await client.waitForTransactionReceipt({ hash: tx })
     res.json({ ok: true, tx })
   } catch (e) {
