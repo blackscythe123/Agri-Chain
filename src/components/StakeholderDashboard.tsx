@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Link } from "react-router-dom";
 import { 
   Sprout, 
   Truck, 
@@ -62,11 +63,11 @@ const StakeholderDashboard = () => {
                 <p className="text-sm text-muted-foreground mb-4">
                   Add new batches with crop type, quantity, and harvest date.
                 </p>
-                <a href="/farmers">
+                <Link to="/farmers">
                   <Button variant="outline" size="sm" className="w-full">
                     Add New Batch
                   </Button>
-                </a>
+                </Link>
               </Card>
 
               {null}
@@ -81,11 +82,11 @@ const StakeholderDashboard = () => {
                 <p className="text-sm text-muted-foreground mb-4">
                   Track your produce sales and earnings over time.
                 </p>
-                <a href="/farmers">
+                <Link to="/farmers">
                   <Button variant="outline" size="sm" className="w-full">
                     View History
                   </Button>
-                </a>
+                </Link>
               </Card>
             </div>
           </TabsContent>
@@ -102,11 +103,11 @@ const StakeholderDashboard = () => {
                 <p className="text-sm text-muted-foreground mb-4">
                   Find and purchase available produce batches from farmers.
                 </p>
-                <a href="/distributors">
+                <Link to="/distributors">
                   <Button variant="outline" size="sm" className="w-full">
                     Browse Now
                   </Button>
-                </a>
+                </Link>
               </Card>
 
               <Card className="p-6 shadow-medium">
@@ -119,11 +120,11 @@ const StakeholderDashboard = () => {
                 <p className="text-sm text-muted-foreground mb-4">
                   Complete purchases via Stripe; ownership is transferred on-chain by a verifier.
                 </p>
-                <a href="/distributors">
+                <Link to="/distributors">
                   <Button variant="success" size="sm" className="w-full">
                     Manage Transfers
                   </Button>
-                </a>
+                </Link>
               </Card>
 
               <Card className="p-6 shadow-medium">
@@ -136,11 +137,11 @@ const StakeholderDashboard = () => {
                 <p className="text-sm text-muted-foreground mb-4">
                   Record transport and storage details with document hashes.
                 </p>
-                <a href="/distributors">
+                <Link to="/distributors">
                   <Button variant="outline" size="sm" className="w-full">
                     Update Logs
                   </Button>
-                </a>
+                </Link>
               </Card>
             </div>
           </TabsContent>
@@ -157,11 +158,11 @@ const StakeholderDashboard = () => {
                 <p className="text-sm text-muted-foreground mb-4">
                   Verify and confirm deliveries from distributors.
                 </p>
-                <a href="/retailers">
+                <Link to="/retailers">
                   <Button variant="outline" size="sm" className="w-full">
                     Pending Deliveries
                   </Button>
-                </a>
+                </Link>
               </Card>
 
               <Card className="p-6 shadow-medium">
@@ -174,11 +175,11 @@ const StakeholderDashboard = () => {
                 <p className="text-sm text-muted-foreground mb-4">
                   Update final pricing for consumers while maintaining transparency.
                 </p>
-                <a href="/retailers">
+                <Link to="/retailers">
                   <Button variant="success" size="sm" className="w-full">
                     Update Pricing
                   </Button>
-                </a>
+                </Link>
               </Card>
 
               {null}
@@ -214,11 +215,11 @@ const StakeholderDashboard = () => {
                   <p className="text-muted-foreground">
                     See transparent pricing and the complete breakdown of costs and margins.
                   </p>
-                  <a href="/fair-trade">
+                  <Link to="/fair-trade">
                     <Button variant="success" className="w-full">
                       Check Fair Trade
                     </Button>
-                  </a>
+                  </Link>
                 </div>
               </Card>
             </div>

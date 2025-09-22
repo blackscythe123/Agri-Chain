@@ -9,8 +9,11 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ChevronRight } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const Index = () => {
+  const { t } = useTranslation();
   type Batch = {
     id: number | string;
     cropType?: string;
@@ -73,14 +76,14 @@ const Index = () => {
     return filtered.slice(start, start + pageSize);
   }, [filtered, page]);
 
-  const ownerRole = (b: Batch) => {
+  const ownerRoleKey = (b: Batch) => {
     const owner = (b.currentOwner || "").toLowerCase();
-    if (!owner) return "Unknown";
-    if (owner === (b.consumer || "").toLowerCase()) return "Consumer";
-    if (owner === (b.retailer || "").toLowerCase()) return "Retailer";
-    if (owner === (b.distributor || "").toLowerCase()) return "Distributor";
-    if (owner === (b.farmer || "").toLowerCase()) return "Farmer";
-    return "Holder";
+    if (!owner) return "unknown" as const;
+    if (owner === (b.consumer || "").toLowerCase()) return "consumer" as const;
+    if (owner === (b.retailer || "").toLowerCase()) return "retailer" as const;
+    if (owner === (b.distributor || "").toLowerCase()) return "distributor" as const;
+    if (owner === (b.farmer || "").toLowerCase()) return "farmer" as const;
+    return "holder" as const;
   };
 
   const openDetails = (b: Batch) => { setSelected(b); setOpen(true); };
@@ -93,14 +96,14 @@ const Index = () => {
     return new Date(ms);
   };
 
-  const stages = ["Farmer", "Distributor", "Retailer", "Consumer"] as const;
+  const stages = ["farmer", "distributor", "retailer", "consumer"] as const;
   const stageIndex = (b: Batch) => {
-    const role = ownerRole(b);
+    const role = ownerRoleKey(b);
     switch (role) {
-      case "Farmer": return 0;
-      case "Distributor": return 1;
-      case "Retailer": return 2;
-      case "Consumer": return 3;
+      case "farmer": return 0;
+      case "distributor": return 1;
+      case "retailer": return 2;
+      case "consumer": return 3;
       default: return -1;
     }
   };
@@ -113,12 +116,12 @@ const Index = () => {
         <section className="py-16">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-6">
             <div>
-              <h2 className="text-2xl font-semibold">Recent Batches</h2>
-              <p className="text-sm text-muted-foreground">Latest on-chain records with current holder and prices.</p>
+              <h2 className="text-2xl font-semibold">{t("index.title")}</h2>
+              <p className="text-sm text-muted-foreground">{t("index.subtitle")}</p>
             </div>
             <div className="flex gap-2">
-              <Input placeholder="Search by batch id (e.g. 1)" value={search} onChange={(e)=>{ setSearch(e.target.value); setPage(1); }} className="w-64" />
-              <Button variant="outline" onClick={()=>setPage(1)}>Search</Button>
+              <Input placeholder={t("index.search")} value={search} onChange={(e)=>{ setSearch(e.target.value); setPage(1); }} className="w-64" />
+              <Button variant="outline" onClick={()=>setPage(1)}>{t("common.submit")}</Button>
             </div>
           </div>
 
@@ -155,17 +158,17 @@ const Index = () => {
                   <div className="flex items-start justify-between gap-4">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2 text-sm">
-                        <Badge variant="outline">Batch #{String(b.id)}</Badge>
+                        <Badge variant="outline">{t("index.batch")} #{String(b.id)}</Badge>
                         <span className="text-muted-foreground">{b.cropType || "—"} • {b.quantityKg || 0}kg</span>
                       </div>
                       <div className="text-sm text-muted-foreground">
-                        Farmer ₹{b.minPriceINR || b.basePriceINR || 0}
-                        {b.priceByDistributorINR ? <> • Dist ₹{b.priceByDistributorINR}</> : null}
-                        {b.priceByRetailerINR ? <> • Retail ₹{b.priceByRetailerINR}</> : null}
+                        {t("index.farmer")} ₹{b.minPriceINR || b.basePriceINR || 0}
+                        {b.priceByDistributorINR ? <> • {t("index.distributor")} ₹{b.priceByDistributorINR}</> : null}
+                        {b.priceByRetailerINR ? <> • {t("index.retailer")} ₹{b.priceByRetailerINR}</> : null}
                       </div>
                       <div className="flex items-center gap-2 pt-1">
-                        {stages.map((label, i) => (
-                          <div key={label} className="flex items-center gap-2">
+                        {stages.map((key, i) => (
+                          <div key={key} className="flex items-center gap-2">
                             <span
                               className={
                                 (i === stageIndex(b))
@@ -173,72 +176,72 @@ const Index = () => {
                                   : "px-2 py-0.5 rounded bg-muted text-muted-foreground text-xs"
                               }
                             >
-                              {label}
+                              {t(`index.${key}`)}
                             </span>
                             {i < stages.length - 1 && <span className="text-muted-foreground">→</span>}
                           </div>
                         ))}
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        Created {b.createdAt ? new Date(Number(b.createdAt) * (Number(b.createdAt) > 1e12 ? 1 : 1000)).toLocaleString() : "—"}
+                        {t("index.created")} {b.createdAt ? new Date(Number(b.createdAt) * (Number(b.createdAt) > 1e12 ? 1 : 1000)).toLocaleString() : "—"}
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Badge className="bg-primary/10 text-primary" variant="secondary">{ownerRole(b)}</Badge>
+                      <Badge className="bg-primary/10 text-primary" variant="secondary">{t(`index.${ownerRoleKey(b)}`)}</Badge>
                       <ChevronRight className="w-4 h-4 text-muted-foreground" />
                     </div>
                   </div>
                 </Card>
               ))}
               {(!loading && pageItems.length === 0) && (
-                <Card className="p-6 text-sm text-muted-foreground">No batches found.</Card>
+                <Card className="p-6 text-sm text-muted-foreground">{t("index.noResults")}</Card>
               )}
             </div>
           </div>
 
           {/* pagination */}
           <div className="flex items-center justify-center gap-2 mt-8">
-            <Button variant="outline" size="sm" disabled={page<=1} onClick={()=>setPage(p=>Math.max(1, p-1))}>Prev</Button>
+            <Button variant="outline" size="sm" disabled={page<=1} onClick={()=>setPage(p=>Math.max(1, p-1))}>{t("index.prev")}</Button>
             {Array.from({ length: totalPages }).slice(0, 6).map((_, i) => {
               const n = i + 1;
               return (
                 <Button key={n} variant={n===page?"default":"outline"} size="sm" onClick={()=>setPage(n)}>{n}</Button>
               );
             })}
-            <Button variant="outline" size="sm" disabled={page>=totalPages} onClick={()=>setPage(p=>Math.min(totalPages, p+1))}>Next</Button>
+            <Button variant="outline" size="sm" disabled={page>=totalPages} onClick={()=>setPage(p=>Math.min(totalPages, p+1))}>{t("index.next")}</Button>
           </div>
 
           {/* details dialog */}
     <Dialog open={open} onOpenChange={setOpen}>
             <DialogContent className="max-w-lg">
               <DialogHeader>
-                <DialogTitle>Batch #{selected?.id}</DialogTitle>
+                <DialogTitle>{t("index.batch")} #{selected?.id}</DialogTitle>
               </DialogHeader>
               <div className="space-y-2 text-sm">
                 <div className="grid grid-cols-2 gap-2">
-                  <div className="text-muted-foreground">Crop</div><div>{selected?.cropType || "—"}</div>
-                  <div className="text-muted-foreground">Quantity</div><div>{selected?.quantityKg || 0} kg</div>
-                  <div className="text-muted-foreground">Farmer Price</div><div>₹{selected?.minPriceINR || selected?.basePriceINR || 0}</div>
-                  <div className="text-muted-foreground">Distributor Price</div><div>₹{selected?.priceByDistributorINR || 0}</div>
-                  <div className="text-muted-foreground">Retailer Price</div><div>₹{selected?.priceByRetailerINR || 0}</div>
-                  <div className="text-muted-foreground">Current Holder</div><div>{selected ? ownerRole(selected) : "—"}</div>
-      <div className="text-muted-foreground">Bought by Distributor</div>
+                  <div className="text-muted-foreground">{t("index.crop")}</div><div>{selected?.cropType || "—"}</div>
+                  <div className="text-muted-foreground">{t("index.quantity")}</div><div>{selected?.quantityKg || 0} kg</div>
+                  <div className="text-muted-foreground">{t("index.farmerPrice")}</div><div>₹{selected?.minPriceINR || selected?.basePriceINR || 0}</div>
+                  <div className="text-muted-foreground">{t("index.distributorPrice")}</div><div>₹{selected?.priceByDistributorINR || 0}</div>
+                  <div className="text-muted-foreground">{t("index.retailerPrice")}</div><div>₹{selected?.priceByRetailerINR || 0}</div>
+                  <div className="text-muted-foreground">{t("index.owner")}</div><div>{selected ? t(`index.${ownerRoleKey(selected)}`) : "—"}</div>
+      <div className="text-muted-foreground">{t("index.boughtBy")} {t("index.distributor")}</div>
       <div>{toDate(selected?.boughtByDistributorAt)?.toLocaleString?.() || "—"}</div>
-      <div className="text-muted-foreground">Bought by Retailer</div>
+      <div className="text-muted-foreground">{t("index.boughtBy")} {t("index.retailer")}</div>
       <div>{toDate(selected?.boughtByRetailerAt)?.toLocaleString?.() || "—"}</div>
-      <div className="text-muted-foreground">Bought by Consumer</div>
+      <div className="text-muted-foreground">{t("index.boughtBy")} {t("index.consumer")}</div>
       <div>{toDate(selected?.boughtByConsumerAt)?.toLocaleString?.() || "—"}</div>
                 </div>
                 <div className="grid grid-cols-2 gap-2 pt-2">
-                  <div className="text-muted-foreground">Farmer</div><div className="font-mono text-xs break-all">{selected?.farmer}</div>
-                  <div className="text-muted-foreground">Distributor</div><div className="font-mono text-xs break-all">{selected?.distributor}</div>
-                  <div className="text-muted-foreground">Retailer</div><div className="font-mono text-xs break-all">{selected?.retailer}</div>
-                  <div className="text-muted-foreground">Consumer</div><div className="font-mono text-xs break-all">{selected?.consumer}</div>
+                  <div className="text-muted-foreground">{t("index.farmer")}</div><div className="font-mono text-xs break-all">{selected?.farmer}</div>
+                  <div className="text-muted-foreground">{t("index.distributor")}</div><div className="font-mono text-xs break-all">{selected?.distributor}</div>
+                  <div className="text-muted-foreground">{t("index.retailer")}</div><div className="font-mono text-xs break-all">{selected?.retailer}</div>
+                  <div className="text-muted-foreground">{t("index.consumer")}</div><div className="font-mono text-xs break-all">{selected?.consumer}</div>
                 </div>
                 <div className="flex justify-end gap-2 pt-4">
-                  <a href={`/batch?id=${encodeURIComponent(String(selected?.id || ""))}`}>
-                    <Button size="sm">Open Details</Button>
-                  </a>
+                  <Link to={`/batch?id=${encodeURIComponent(String(selected?.id || ""))}`}>
+                    <Button size="sm">{t("index.details")}</Button>
+                  </Link>
                 </div>
               </div>
             </DialogContent>

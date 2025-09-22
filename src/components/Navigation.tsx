@@ -10,13 +10,20 @@ import {
   ChevronDown
 } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { t } = useTranslation();
 
   const navItems = [
-    { label: "Dashboard", href: "/#dashboard" },
-    { label: "About", href: "/#about" }
+    { label: t("nav.home"), href: "/" },
+    { label: t("nav.farmers"), href: "/farmers" },
+    { label: t("nav.distributors"), href: "/distributors" },
+    { label: t("nav.retailers"), href: "/retailers" },
+    { label: t("nav.consumers"), href: "/consumers" },
   ];
 
   return (
@@ -24,7 +31,7 @@ const Navigation = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <a href="/" className="flex items-center gap-3">
+          <Link to="/" className="flex items-center gap-3">
             <div className="p-2 bg-gradient-primary rounded-lg">
               <Leaf className="w-6 h-6 text-primary-foreground" />
             </div>
@@ -32,29 +39,30 @@ const Navigation = () => {
               <h1 className="font-bold text-lg">AgriChain</h1>
               <p className="text-xs text-muted-foreground">Transparency Platform</p>
             </div>
-          </a>
+          </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
             {navItems.map((item) => (
-              <a
+              <Link
                 key={item.label}
-                href={item.href}
+                to={item.href}
                 className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
               >
                 {item.label}
-              </a>
+              </Link>
             ))}
           </div>
 
           {/* Actions */}
           <div className="hidden md:flex items-center gap-4">
-      <a href="/login">
+            <LanguageSwitcher />
+            <Link to="/login">
               <Button variant="hero" size="sm">
                 <Users className="w-4 h-4 mr-2" />
-        Login
+                {t("nav.login")}
               </Button>
-            </a>
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -72,22 +80,22 @@ const Navigation = () => {
             {isMenuOpen && (
           <div className="md:hidden py-4 space-y-4 border-t border-border animate-fade-in">
             {navItems.map((item) => (
-              <a
+              <Link
                 key={item.label}
-                href={item.href}
+                to={item.href}
                 className="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
                 {item.label}
-              </a>
+              </Link>
             ))}
             <div className="pt-4 space-y-2">
-                  <a href="/join" onClick={() => setIsMenuOpen(false)}>
+                  <Link to="/join" onClick={() => setIsMenuOpen(false)}>
                     <Button variant="hero" size="sm" className="w-full justify-start">
                       <Users className="w-4 h-4 mr-2" />
                       Join Platform
                     </Button>
-                  </a>
+                  </Link>
             </div>
           </div>
         )}
