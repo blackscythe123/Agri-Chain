@@ -1,47 +1,31 @@
-import { create } from 'ipfs-http-client'
+import IPFS from 'ipfs-http-client'
 
-const hasCreds = !!(process.env.IPFS_PROJECT_ID && process.env.IPFS_API_SECRET)
-const ipfs = hasCreds ? create({
-    host: process.env.IPFS_HOST || 'ipfs.infura.io',
-    port: 5001,
-    protocol: 'https',
-    headers: {
-        authorization: `Basic ${Buffer.from(`${process.env.IPFS_PROJECT_ID}:${process.env.IPFS_API_SECRET}`).toString('base64')}`
+const projectId = process.env.IPFS_PROJECT_ID
+const projectSecret = process.env.IPFS_API_SECRET
+const host = process.env.IPFS_HOST || 'ipfs.infura.io'
+
+let client
+if (projectId && projectSecret) {
+    const auth = 'Basic ' + Buffer.from(projectId + ':' + projectSecret).toString('base64')
+    client = IPFS.create({ host, protocol: 'https', port: 5001, headers: { authorization: auth } })
+} else {
+    console.warn('IPFS credentials not set, using fallback meta:')
+    client = null
+}
+
+// Upload batch metadata to IPFS (or fallback)
+export async function uploadToIPFS(data) {
+    if (!client) {
+        console.log('IPFS fallback active, returning meta placeholder')
+        return 'meta:' + Buffer.from(JSON.stringify(data)).toString('base64')
     }
-}) : null
-
-export async function uploadBatchData(batchData) {
-    const jsonData = JSON.stringify(batchData)
-    if (!ipfs) {
-        // Fallback: no IPFS creds; return inline meta so the system still works
-        return `meta:${jsonData}`
-    }
-    const result = await ipfs.add(jsonData, { pin: true })
-    return result.path
+    const { cid } = await client.add(JSON.stringify(data))
+    return cid.toString()
 }
 
-export async function getBatchData(ipfsHash) {
-    if (!ipfs || (typeof ipfsHash === 'string' && ipfsHash.startsWith('meta:'))) {
-        try { return JSON.parse(String(ipfsHash).slice(5)) } catch { return null }
-    }
-    const stream = ipfs.cat(ipfsHash)
-    let data = ''
-    for await (const chunk of stream) data += new TextDecoder().decode(chunk)
-    return JSON.parse(data)
+// Example function for writing to blockchain
+export async function registerBatchOnChain(batchId, ipfsHash) {
+    // your smart contract call here (Arbitrum Sepolia)
+    // return a dummy object for now
+    return { txHash: '0xDUMMY_TX_HASH', batchId, ipfsHash }
 }
-
-export async function uploadFile(fileBuffer, filename) {
-    if (!ipfs) return `meta:file:${filename}`
-    const result = await ipfs.add({ path: filename, content: fileBuffer }, { pin: true })
-    return result.path
-}
-
-export async function getFile(ipfsHash) {
-    if (!ipfs) return Buffer.from('')
-    const stream = ipfs.cat(ipfsHash)
-    const chunks = []
-    for await (const chunk of stream) chunks.push(chunk)
-    return Buffer.concat(chunks)
-}
-
-

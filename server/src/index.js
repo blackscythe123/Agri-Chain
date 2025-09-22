@@ -788,3 +788,20 @@ app.post('/api/set-price-by-retailer', async (req, res) => {
     res.status(500).json({ error: 'set_price_failed', message: e?.message || String(e) })
   }
 })
+
+
+import express from 'express'
+import farmerRoutes from './routes/farmerRoutes.js'
+import verificationRoutes from './routes/verificationRoutes.js'
+import batchOnChainRoutes from './routes/batchOnChainRoutes.js'
+
+const app = express()
+app.use(express.json())
+
+app.use('/api/farmers', farmerRoutes)
+app.use('/api/verification', verificationRoutes)
+app.use('/api/batches', batchOnChainRoutes)  // <-- new route linked
+
+app.listen(process.env.PORT || 3000, () => {
+  console.log('Server running')
+})
