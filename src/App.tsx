@@ -3,7 +3,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { VerificationProvider } from "./context/VerificationContext";
+import { I18nextProvider } from "react-i18next";
+import i18n from "./i18n";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import HowItWorks from "./pages/HowItWorks";
@@ -26,19 +27,20 @@ import FarmerProfile from "./pages/profiles/FarmerProfile";
 import DistributorProfile from "./pages/profiles/DistributorProfile";
 import RetailerProfile from "./pages/profiles/RetailerProfile";
 import ConsumerProfile from "./pages/profiles/ConsumerProfile";
-import VerifierDashboard from "./pages/VerifierDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
-import Admin from "./pages/Admin";
+import VerificationCenterDashboard from "./components/VerificationCenterDashboard";
+import ConsumerBatchInfo from "./components/ConsumerBatchInfo";
+import VerifierDashboard from "./pages/VerifierDashboard";
 
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <AuthProvider>
-        <VerificationProvider>
+  <I18nextProvider i18n={i18n}>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <AuthProvider>
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
@@ -46,6 +48,11 @@ const App = () => (
               <Route path="/join" element={<Join />} />
               <Route path="/login" element={<Login />} />
               <Route path="/batch" element={<BatchDetails />} />
+              <Route path="/verification" element={<VerificationCenterDashboard />} />
+              <Route path="/batch/:batchId/info" element={<ConsumerBatchInfo batchId={"1"} />} />
+              <Route element={<ProtectedRoute role="verifier" />}>
+                <Route path="/verifier" element={<VerifierDashboard />} />
+              </Route>
 
               <Route element={<ProtectedRoute role="farmer" />}>
                 <Route path="/farmers" element={<Farmers />} />
@@ -63,12 +70,6 @@ const App = () => (
                 <Route path="/consumers" element={<Consumers />} />
                 <Route path="/profile/consumer" element={<ConsumerProfile />} />
               </Route>
-              <Route element={<ProtectedRoute role="verifier" />}>
-                <Route path="/verification-center" element={<VerifierDashboard />} />
-              </Route>
-              <Route element={<ProtectedRoute role="admin" />}>
-                <Route path="/admin" element={<Admin />} />
-              </Route>
               <Route path="/blockchain-guide" element={<BlockchainGuide />} />
               <Route path="/fair-trade" element={<FairTrade />} />
               <Route path="/api-docs" element={<ApiDocs />} />
@@ -80,10 +81,10 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
-        </VerificationProvider>
-      </AuthProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
+        </AuthProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </I18nextProvider>
 );
 
 export default App;

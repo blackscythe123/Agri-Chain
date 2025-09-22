@@ -1,6 +1,8 @@
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Card } from "@/components/ui/card";
+import VerificationCenterDashboard from "@/components/VerificationCenterDashboard";
+import ConsumerBatchInfo from "@/components/ConsumerBatchInfo";
 
 const ApiDocs = () => {
   return (
@@ -19,17 +21,28 @@ const ApiDocs = () => {
               <li>POST <code>/api/register-batch</code> — Register a new batch</li>
               <li>POST <code>/create-checkout-session</code> — Create Stripe Checkout</li>
               <li>POST <code>/api/set-price-by-retailer</code> — Set consumer price (INR)</li>
+              <li>GET <code>/api/farmers/search</code> — Search farmer</li>
+              <li>POST <code>/api/farmers/register</code> — Register farmer</li>
+              <li>POST <code>/api/verification/verify-batch</code> — Verify batch</li>
+              <li>POST <code>/api/supply-chain/update-quantity</code> — Update quantities</li>
+              <li>POST <code>/api/consumer/complaint</code> — Submit complaint</li>
+              <li>POST <code>/api/consumer/rating</code> — Submit rating</li>
             </ul>
           </Card>
           <Card className="p-6">
             <h3 className="font-semibold mb-2">Sequence (simplified)</h3>
             <pre className="text-xs md:text-sm bg-muted rounded p-3 overflow-auto leading-6">
-{`[Client] → POST /create-checkout-session
+              {`[Client] → POST /create-checkout-session
   → [Stripe Checkout]
     → [Server Webhook] (payment success)
       → Contract.transferOwnershipByVerifier(batchId, to)
         (optional) setPriceByRetailerInr / setPriceByDistributorInr`}
             </pre>
+          </Card>
+          <Card className="p-6 col-span-2 space-y-6">
+            <h3 className="font-semibold">Examples</h3>
+            <VerificationCenterDashboard />
+            <ConsumerBatchInfo batchId="1" />
           </Card>
         </div>
       </main>

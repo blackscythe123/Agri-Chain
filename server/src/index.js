@@ -9,12 +9,6 @@ import { privateKeyToAccount } from 'viem/accounts'
 import { arbitrumSepolia } from 'viem/chains'
 import { AGRI_TRUTH_CHAIN_ABI, AGRI_TRUTH_CHAIN_ADDRESS } from './contract.js'
 
-// Import route files
-import farmerRoutes from './routes/farmerRoutes.js';
-import verificationRoutes from './routes/verificationRoutes.js';
-import supplyChainRoutes from './routes/supplyChainRoutes.js';
-import consumerRoutes from './routes/consumerRoutes.js';
-
 // Default EOAs for testing when inputs are missing
 const DEFAULT_ADDRESSES = {
   FARMER: '0x1111111111111111111111111111111111111111',
@@ -76,12 +70,6 @@ console.log(`[server] RPC: ${rpcUrl || 'default provider'}`)
 if (account && isValidAddress(CONTRACT_ADDRESS) && isSameAddress(CONTRACT_ADDRESS, account.address)) {
   console.warn('[server] WARNING: Contract address equals relayer address (EOA). This is not a contract. Update AGRI_TRUTH_CHAIN_ADDRESS in server/.env to your deployed contract address.')
 }
-
-// Add API routes
-app.use('/api/farmers', farmerRoutes);
-app.use('/api/verification', verificationRoutes);
-app.use('/api/supply-chain', supplyChainRoutes);
-app.use('/api/consumer', consumerRoutes);
 
 // Raw body is required for Stripe signature verification
 app.post('/webhook', bodyParser.raw({ type: 'application/json' }), async (req, res) => {
@@ -192,7 +180,27 @@ app.post('/webhook', bodyParser.raw({ type: 'application/json' }), async (req, r
 
 // Note: duplicate webhook route removed to prevent double handling
 
-app.use(express.json())
+app.use(express.json({ limit: '10mb' }))
+app.use(express.urlencoded({ extended: true, limit: '10mb' }))
+
+// Additional API routes per docs
+import batchRoutes from './routes/batchRoutes.js'
+import farmerRoutes from './routes/farmerRoutes.js'
+import verificationRoutes from './routes/verificationRoutes.js'
+import supplyChainRoutes from './routes/supplyChainRoutes.js'
+import consumerRoutes from './routes/consumerRoutes.js'
+import integrationRoutes from './routes/integrationRoutes.js'
+import verifierRoutes from './routes/verifierRoutes.js'
+
+app.use('/api', batchRoutes)
+app.use('/api/farmers', farmerRoutes)
+app.use('/api/verification', verificationRoutes)
+app.use('/api/supply-chain', supplyChainRoutes)
+app.use('/api/consumer', consumerRoutes)
+app.use('/api/integration', integrationRoutes)
+app.use('/api/verifier', verifierRoutes)
+
+app.get('/health', (req, res) => res.json({ status: 'OK', timestamp: new Date().toISOString() }))
 
 app.post('/create-checkout-session', async (req, res) => {
   try {

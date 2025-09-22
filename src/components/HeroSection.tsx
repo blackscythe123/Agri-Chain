@@ -3,8 +3,10 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Leaf, Shield, Eye, QrCode } from "lucide-react";
 import heroImage from "@/assets/hero-agriculture.jpg";
+import { useTranslation } from "react-i18next";
 
 const HeroSection = () => {
+  const { t } = useTranslation();
   return (
   <section id="about" className="relative min-h-screen flex items-center justify-center overflow-hidden scroll-mt-24">
       {/* Background Image with Overlay */}
@@ -26,20 +28,19 @@ const HeroSection = () => {
             <div className="space-y-4">
               <Badge className="bg-primary/10 text-primary border-primary/20 hover:bg-primary/20">
                 <Leaf className="w-4 h-4 mr-2" />
-                Blockchain Transparency
+                {t("hero.badge")}
               </Badge>
               
               <h1 className="text-4xl md:text-6xl font-bold leading-tight">
                 <span className="bg-gradient-primary bg-clip-text text-transparent">
-                  Farm to Fork
+                  {t("hero.title1")}
                 </span>
                 <br />
-                <span className="text-foreground">Transparency</span>
+                <span className="text-foreground">{t("hero.title2")}</span>
               </h1>
               
               <p className="text-xl text-muted-foreground leading-relaxed">
-                Track every step of your food's journey. From the farmer's field to your plate, 
-                see transparent pricing, quality standards, and provenance in the agricultural supply chain.
+                {t("hero.description")}
               </p>
             </div>
 
@@ -47,13 +48,13 @@ const HeroSection = () => {
               <a href="/#scanner">
                 <Button variant="hero" size="lg" className="group">
                   <QrCode className="w-5 h-5 mr-2 group-hover:animate-float" />
-                  Scan Product
+                  {t("hero.scanButton")}
                 </Button>
               </a>
               <a href="/how-it-works">
                 <Button variant="outline" size="lg">
                   <Shield className="w-5 h-5 mr-2" />
-                  Learn More
+                  {t("hero.learnMore")}
                 </Button>
               </a>
             </div>
@@ -62,15 +63,15 @@ const HeroSection = () => {
             <div className="flex flex-wrap gap-6 pt-6">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <div className="w-2 h-2 bg-success rounded-full" />
-                100% Transparent
+                {t("hero.trust1")}
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <div className="w-2 h-2 bg-success rounded-full" />
-                Fair Trade Verified
+                {t("hero.trust2")}
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <div className="w-2 h-2 bg-success rounded-full" />
-                Blockchain Secured
+                {t("hero.trust3")}
               </div>
             </div>
           </div>
@@ -83,9 +84,9 @@ const HeroSection = () => {
                   <Eye className="w-6 h-6 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-semibold mb-2">Complete Transparency</h3>
+                  <h3 className="font-semibold mb-2">{t("hero.card1Title")}</h3>
                   <p className="text-sm text-muted-foreground">
-                    See exactly how much farmers earn, distributor costs, and retailer margins for every product.
+                    {t("hero.card1Desc")}
                   </p>
                 </div>
               </div>
@@ -99,9 +100,9 @@ const HeroSection = () => {
                   <QrCode className="w-6 h-6 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-semibold mb-2">Easy Scanning</h3>
+                  <h3 className="font-semibold mb-2">{t("hero.card2Title")}</h3>
                   <p className="text-sm text-muted-foreground">
-                    Simply scan any QR code to trace the complete journey of your food from farm to table.
+                    {t("hero.card2Desc")}
                   </p>
                 </div>
               </div>

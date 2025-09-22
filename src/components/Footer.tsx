@@ -11,8 +11,10 @@ import {
   Shield
 } from "lucide-react";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+import { useTranslation } from "react-i18next";
 
 const Footer = () => {
+  const { t } = useTranslation();
   return (
     <footer className="bg-gradient-earth border-t border-border">
       <div className="container mx-auto px-4 py-16">
@@ -29,8 +31,7 @@ const Footer = () => {
               </div>
             </div>
             <p className="text-muted-foreground max-w-sm">
-              Revolutionizing agricultural supply chains with blockchain technology, 
-              ensuring transparent pricing and complete traceability from farm to fork.
+              {t("footer.description")}
             </p>
             <Badge className="bg-success/10 text-success border-success/20">
               <Shield className="w-3 h-3 mr-1" />
@@ -40,19 +41,19 @@ const Footer = () => {
 
           {/* Quick Links */}
           <div className="space-y-4">
-            <h4 className="font-semibold">Platform</h4>
+            <h4 className="font-semibold">{t("footer.platform")}</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><a href="/farmers" className="hover:text-foreground transition-colors">For Farmers</a></li>
-              <li><a href="/distributors" className="hover:text-foreground transition-colors">For Distributors</a></li>
-              <li><a href="/retailers" className="hover:text-foreground transition-colors">For Retailers</a></li>
-              <li><a href="/consumers" className="hover:text-foreground transition-colors">For Consumers</a></li>
+              <li><a href="/farmers" className="hover:text-foreground transition-colors">{t("nav.farmers")}</a></li>
+              <li><a href="/distributors" className="hover:text-foreground transition-colors">{t("nav.distributors")}</a></li>
+              <li><a href="/retailers" className="hover:text-foreground transition-colors">{t("nav.retailers")}</a></li>
+              <li><a href="/consumers" className="hover:text-foreground transition-colors">{t("nav.consumers")}</a></li>
               
             </ul>
           </div>
 
           {/* Resources */}
           <div className="space-y-4">
-            <h4 className="font-semibold">Resources</h4>
+            <h4 className="font-semibold">{t("footer.resources")}</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
                 <HoverCard>
@@ -146,7 +147,7 @@ const Footer = () => {
 
           {/* Contact */}
           <div className="space-y-4">
-            <h4 className="font-semibold">Get in Touch</h4>
+            <h4 className="font-semibold">{t("footer.contact")}</h4>
             <div className="space-y-3">
               <div className="flex items-center gap-3 text-sm text-muted-foreground">
                 <Mail className="w-4 h-4" />
@@ -158,7 +159,7 @@ const Footer = () => {
               </div>
               <div className="flex items-center gap-3 text-sm text-muted-foreground">
                 <MapPin className="w-4 h-4" />
-                <span>Mumbai, Maharashtra, India</span>
+                <span>SSN College, Tamil Nadu, India</span>
               </div>
             </div>
             
@@ -178,12 +179,12 @@ const Footer = () => {
 
         <div className="border-t border-border mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground">
-            © 2024 AgriChain Transparency Platform. All rights reserved.
+            {t("footer.copyright")}
           </p>
           <div className="flex gap-6 text-sm text-muted-foreground">
-            <a href="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</a>
-            <a href="/terms" className="hover:text-foreground transition-colors">Terms of Service</a>
-            <a href="/cookies" className="hover:text-foreground transition-colors">Cookie Policy</a>
+            <a href="/privacy" className="hover:text-foreground transition-colors">{t("nav.privacy")}</a>
+            <a href="/terms" className="hover:text-foreground transition-colors">{t("nav.terms")}</a>
+            <a href="/cookies" className="hover:text-foreground transition-colors">{t("nav.cookies")}</a>
           </div>
         </div>
       </div>
