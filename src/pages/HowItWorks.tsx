@@ -59,8 +59,8 @@ const HowItWorks = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      <main className="container mx-auto px-4 py-28 space-y-8">
-        <h1 className="text-3xl md:text-4xl font-bold">How It Works</h1>
+      <main className="container mx-auto px-4 py-24 sm:py-28 space-y-8">
+        <h1 className="text-2xl sm:text-4xl font-bold">How It Works</h1>
         <p className="text-muted-foreground max-w-2xl">
           The platform records produce batches on-chain with INR pricing. Purchases happen via Stripe, and a verifier
           performs the on-chain ownership transfer. Every stage exposes transparent prices.
@@ -68,7 +68,7 @@ const HowItWorks = () => {
 
         <Card className="p-6">
           <h2 className="font-semibold mb-3">Flow at a glance</h2>
-          <pre className="text-xs md:text-sm bg-muted rounded p-3 overflow-auto leading-6">
+          <pre className="text-[11px] sm:text-xs md:text-sm bg-muted rounded p-3 overflow-auto leading-6">
 {`[Farmer]
   └─ registers batch (crop, quantity, ₹ farmer)
 [Distributor]

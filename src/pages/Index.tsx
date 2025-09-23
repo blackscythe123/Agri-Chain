@@ -33,6 +33,7 @@ const Index = () => {
   boughtByDistributorAt?: number | string;
   boughtByRetailerAt?: number | string;
   boughtByConsumerAt?: number | string;
+  verification?: { status: 'unverified' | 'pending' | 'verified'; by?: string | null; timestamp?: number | null };
   };
 
   const [allBatches, setAllBatches] = useState<Batch[]>([]);
@@ -113,14 +114,14 @@ const Index = () => {
       <Navigation />
       <main>
         <HeroSection />
-        <section className="py-16">
+        <section className="py-12 sm:py-16">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-6">
             <div>
-              <h2 className="text-2xl font-semibold">{t("index.title")}</h2>
+              <h2 className="text-xl sm:text-2xl font-semibold">{t("index.title")}</h2>
               <p className="text-sm text-muted-foreground">{t("index.subtitle")}</p>
             </div>
-            <div className="flex gap-2">
-              <Input placeholder={t("index.search")} value={search} onChange={(e)=>{ setSearch(e.target.value); setPage(1); }} className="w-64" />
+            <div className="flex gap-2 flex-wrap">
+              <Input placeholder={t("index.search")} value={search} onChange={(e)=>{ setSearch(e.target.value); setPage(1); }} className="w-full sm:w-64" />
               <Button variant="outline" onClick={()=>setPage(1)}>{t("common.submit")}</Button>
             </div>
           </div>
@@ -152,14 +153,14 @@ const Index = () => {
             <div className="absolute left-4 md:left-6 top-0 bottom-0 w-px bg-border" />
             <div className="space-y-6">
               {pageItems.map((b, idx) => (
-                <Card key={String(b.id)} className="p-4 pl-12 md:pl-16 relative hover:shadow-medium transition-shadow cursor-pointer" onClick={()=>openDetails(b)}>
+                <Card key={String(b.id)} className="p-4 sm:p-5 pl-12 md:pl-16 relative hover:shadow-medium transition-shadow cursor-pointer" onClick={()=>openDetails(b)}>
                   {/* node */}
                   <div className="absolute left-4 md:left-6 top-6 -translate-y-1/2 w-3 h-3 rounded-full bg-primary ring-2 ring-background" />
-                  <div className="flex items-start justify-between gap-4">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2 text-sm">
                         <Badge variant="outline">{t("index.batch")} #{String(b.id)}</Badge>
-                        <span className="text-muted-foreground">{b.cropType || "—"} • {b.quantityKg || 0}kg</span>
+                        <span className="text-muted-foreground break-words">{b.cropType || "—"} • {b.quantityKg || 0}kg</span>
                       </div>
                       <div className="text-sm text-muted-foreground">
                         {t("index.farmer")} ₹{b.minPriceINR || b.basePriceINR || 0}
@@ -186,8 +187,15 @@ const Index = () => {
                         {t("index.created")} {b.createdAt ? new Date(Number(b.createdAt) * (Number(b.createdAt) > 1e12 ? 1 : 1000)).toLocaleString() : "—"}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap pt-2 sm:pt-0">
                       <Badge className="bg-primary/10 text-primary" variant="secondary">{t(`index.${ownerRoleKey(b)}`)}</Badge>
+                      {b?.verification?.status === 'verified' ? (
+                        <Badge className="bg-success/10 text-success border-success/20" variant="secondary">{t('index.verified')}</Badge>
+                      ) : b?.verification?.status === 'pending' ? (
+                        <Badge className="bg-warning/10 text-warning border-warning/20" variant="secondary">{t('index.pending')}</Badge>
+                      ) : (
+                        <Badge className="bg-muted text-muted-foreground" variant="secondary">{t('index.unverified')}</Badge>
+                      )}
                       <ChevronRight className="w-4 h-4 text-muted-foreground" />
                     </div>
                   </div>

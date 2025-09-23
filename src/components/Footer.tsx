@@ -110,7 +110,14 @@ const Footer = () => {
               <li>
                 <HoverCard>
                   <HoverCardTrigger asChild>
-                    <a href="/api-docs" className="hover:text-foreground transition-colors">API Documentation</a>
+                    <a
+                      href="https://github.com/blackscythe123/Agri-Chain#api-endpoints"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-foreground transition-colors"
+                    >
+                      API Documentation
+                    </a>
                   </HoverCardTrigger>
                   <HoverCardContent>
                     <div className="space-y-2">
@@ -170,8 +177,21 @@ const Footer = () => {
               <Button variant="ghost" size="icon" className="h-8 w-8">
                 <Linkedin className="w-4 h-4" />
               </Button>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <Github className="w-4 h-4" />
+              <Button
+                asChild
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                title="GitHub"
+                aria-label="GitHub"
+              >
+                <a
+                  href="https://github.com/blackscythe123/Agri-Chain"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Github className="w-4 h-4" />
+                </a>
               </Button>
             </div>
           </div>

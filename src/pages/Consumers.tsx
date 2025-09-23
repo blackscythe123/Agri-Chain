@@ -8,6 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useEffect, useMemo, useState } from "react";
 import TestingAddresses from "@/components/TestingAddresses";
 import { DEFAULT_ADDRESSES } from "@/lib/addresses";
+import { useTranslation } from "react-i18next";
 
 const Consumers = () => {
   const [batches, setBatches] = useState<any[]>([]);
@@ -16,6 +17,7 @@ const Consumers = () => {
   const [msg, setMsg] = useState("");
   const [paying, setPaying] = useState(false);
   const { user } = useAuth();
+  const { t } = useTranslation();
 
   const fetchBatches = async () => {
     try {
@@ -36,8 +38,8 @@ const Consumers = () => {
   );
 
   const validate = () => {
-    if (!user) { setMsg("Please login to continue"); return false; }
-    if (!selectedBatch) { setMsg("Select a batch"); return false; }
+  if (!user) { setMsg(t('consumers.messages.login')); return false; }
+  if (!selectedBatch) { setMsg(t('consumers.messages.select')); return false; }
     setMsg(""); return true;
   };
 
@@ -46,7 +48,7 @@ const Consumers = () => {
   const item = available.find((b: any) => String(b.id) === String(selectedBatch));
   const amountInr = item?.priceByRetailerINR && item.priceByRetailerINR !== "0" ? Number(item.priceByRetailerINR) : Number(item.minPriceINR || item.basePriceINR || 0);
   if (!amountInr || Number.isNaN(amountInr)) {
-      setMsg("Missing on-chain price");
+  setMsg(t('consumers.messages.missingPrice'));
       return;
     }
     try {
@@ -72,11 +74,11 @@ const Consumers = () => {
         }),
       });
       const data = await res.json();
-      if (data.url) window.location.href = data.url;
-      else setMsg("Failed to start payment");
+  if (data.url) window.location.href = data.url;
+  else setMsg(t('consumers.messages.startFailed'));
     } catch (e) {
       console.error(e);
-      setMsg("Failed");
+  setMsg(t('consumers.messages.failed'));
     } finally {
       setPaying(false);
     }
@@ -85,14 +87,14 @@ const Consumers = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      <main className="container mx-auto px-4 py-28 space-y-8">
-        <h1 className="text-3xl font-bold">Consumer Portal</h1>
+      <main className="container mx-auto px-4 py-24 sm:py-28 space-y-8">
+  <h1 className="text-2xl sm:text-3xl font-bold">{t('consumers.title')}</h1>
         <TestingAddresses />
         <Card className="p-6 space-y-4">
           {!!msg && <div className="text-sm text-muted-foreground">{msg}</div>}
-          <div className="grid md:grid-cols-3 gap-3">
-            <select className="border rounded px-3 py-2" value={selectedBatch} onChange={(e) => setSelectedBatch(e.target.value)}>
-              <option value="">Select batch</option>
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
+            <select className="border rounded px-3 py-2 w-full" value={selectedBatch} onChange={(e) => setSelectedBatch(e.target.value)}>
+              <option value="">{t('consumers.selectBatch')}</option>
               {available.map((b: any) => (
                 <option key={b.id} value={b.id}>
                   {b.id} • {b.cropType || "—"} • {b.quantityKg}kg • amount: ₹{b.priceByRetailerINR || b.minPriceINR || "0"}
@@ -100,12 +102,12 @@ const Consumers = () => {
               ))}
             </select>
             {/* Buyer address input removed; default consumer EOA is used */}
-            <div className="flex items-end gap-2">
+            <div className="flex items-end gap-2 flex-wrap">
               <Button onClick={pay} disabled={paying || !selectedBatch}>
-                {paying ? "Starting…" : "Pay Retailer (Stripe)"}
+                {paying ? t('consumers.starting') : t('consumers.buttons.pay')}
               </Button>
               <Button variant="ghost" onClick={fetchBatches}>
-                Refresh
+                {t('consumers.buttons.refresh')}
               </Button>
             </div>
           </div>

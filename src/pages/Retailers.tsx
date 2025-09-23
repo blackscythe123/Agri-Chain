@@ -8,6 +8,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import TestingAddresses from "@/components/TestingAddresses";
 import { DEFAULT_ADDRESSES } from "@/lib/addresses";
+import { useTranslation } from "react-i18next";
 
 const Retailers = () => {
   const [batches, setBatches] = useState<any[]>([]);
@@ -18,6 +19,7 @@ const Retailers = () => {
   const [consumerPriceInr, setConsumerPriceInr] = useState<string>("");
   const [paying, setPaying] = useState(false);
   const { user } = useAuth();
+  const { t } = useTranslation();
 
   const fetchBatches = async () => {
     try {
@@ -32,10 +34,10 @@ const Retailers = () => {
 
   const setRetailPrice = async () => {
     setMsg("");
-    if (!user) { setMsg("Please login to continue"); return; }
-    if (!selectedBatch) { setMsg("Select a batch"); return; }
+  if (!user) { setMsg(t('retailers.messages.login')); return; }
+  if (!selectedBatch) { setMsg(t('retailers.messages.select')); return; }
     const inr = Number(priceInr || 0);
-    if (!inr || Number.isNaN(inr)) { setMsg("Enter a valid price (₹)"); return; }
+  if (!inr || Number.isNaN(inr)) { setMsg(t('common.error')); return; }
     try {
       setSaving(true);
       const res = await fetch('/api/set-price-by-retailer', {
@@ -43,19 +45,19 @@ const Retailers = () => {
         body: JSON.stringify({ batchId: String(selectedBatch), priceINR: Math.round(inr) })
       });
       const data = await res.json();
-      if (res.ok && data?.ok) { setMsg('Retail price updated'); await fetchBatches(); setPriceInr(""); }
-      else setMsg(data?.error || 'Failed to set price');
-    } catch (e:any) { setMsg(e?.message || 'Failed'); }
+      if (res.ok && data?.ok) { setMsg(t('retailers.messages.updated')); await fetchBatches(); setPriceInr(""); }
+      else setMsg(data?.error || t('retailers.messages.setFailed'));
+    } catch (e:any) { setMsg(e?.message || t('retailers.messages.failed')); }
     finally { setSaving(false); }
   };
 
   const pay = async () => {
     setMsg("");
-    if (!user) { setMsg('Please login to continue'); return; }
-    if (!selectedBatch) { setMsg('Select a batch'); return; }
+  if (!user) { setMsg(t('retailers.messages.login')); return; }
+  if (!selectedBatch) { setMsg(t('retailers.messages.select')); return; }
   const item = myInventory.find((b:any) => String(b.id) === String(selectedBatch));
   const amountInr = item?.priceByDistributorINR && item.priceByDistributorINR !== '0' ? Number(item.priceByDistributorINR) : Number(item.minPriceINR || item.basePriceINR || 0);
-  if (!amountInr || Number.isNaN(amountInr)) { setMsg('Missing on-chain price'); return; }
+  if (!amountInr || Number.isNaN(amountInr)) { setMsg(t('retailers.messages.missingPrice')); return; }
   const consumerPriceINR = consumerPriceInr && !Number.isNaN(Number(consumerPriceInr)) ? Math.round(Number(consumerPriceInr)) : undefined;
     try {
       setPaying(true);
@@ -70,22 +72,22 @@ const Retailers = () => {
         })
       });
       const data = await res.json();
-      if (data.url) window.location.href = data.url; else setMsg('Failed to start payment');
-    } catch (e:any) { setMsg(e?.message || 'Failed'); }
+      if (data.url) window.location.href = data.url; else setMsg(t('retailers.messages.startFailed'));
+    } catch (e:any) { setMsg(e?.message || t('retailers.messages.failed')); }
     finally { setPaying(false); }
   };
 
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      <main className="container mx-auto px-4 py-28 space-y-8">
-        <h1 className="text-3xl font-bold">Retailer Dashboard</h1>
+      <main className="container mx-auto px-4 py-24 sm:py-28 space-y-8">
+  <h1 className="text-2xl sm:text-3xl font-bold">{t('retailers.title')}</h1>
         <TestingAddresses />
         <Card className="p-6 space-y-4">
           {!!msg && <div className="text-sm text-muted-foreground">{msg}</div>}
-          <div className="grid md:grid-cols-3 gap-3">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
             <select className="border rounded px-3 py-2" value={selectedBatch} onChange={(e)=>setSelectedBatch(e.target.value)}>
-              <option value="">Select batch</option>
+              <option value="">{t('retailers.selectBatch')}</option>
               {myInventory.map((b:any) => (
                 <option key={b.id} value={b.id}>
                   {b.id} • {b.cropType || '—'} • {b.quantityKg}kg • amount ₹{b.priceByDistributorINR || b.minPriceINR || '0'}
@@ -93,12 +95,12 @@ const Retailers = () => {
               ))}
             </select>
             <div className="space-y-2">
-              <Label>Set Consumer Price (₹ total)</Label>
+              <Label>{t('retailers.setConsumerPrice')}</Label>
               <Input value={consumerPriceInr} onChange={(e)=>setConsumerPriceInr(e.target.value)} placeholder="e.g. 2000" />
             </div>
-            <div className="flex items-end gap-2">
-              <Button onClick={pay} disabled={paying || !selectedBatch}>{paying ? 'Starting…' : 'Pay Distributor (Stripe)'}</Button>
-              <Button variant="ghost" onClick={fetchBatches}>Refresh</Button>
+            <div className="flex items-end gap-2 flex-wrap">
+              <Button onClick={pay} disabled={paying || !selectedBatch}>{paying ? t('retailers.starting') : t('retailers.buttons.pay')}</Button>
+              <Button variant="ghost" onClick={fetchBatches}>{t('retailers.buttons.refresh')}</Button>
             </div>
           </div>
         </Card>

@@ -20,6 +20,12 @@ export const AGRI_TRUTH_CHAIN_ABI = [
   ], outputs: [{ name: "batchId", type: "uint256" }] },
   { type: "function", name: "transferOwnership", stateMutability: "nonpayable", inputs: [{ name: "batchId", type: "uint256" }, { name: "to", type: "address" }], outputs: [] },
   { type: "function", name: "transferOwnershipByVerifier", stateMutability: "nonpayable", inputs: [{ name: "batchId", type: "uint256" }, { name: "to", type: "address" }], outputs: [] },
+  { type: "function", name: "setVerificationStatus", stateMutability: "nonpayable", inputs: [{ name: "batchId", type: "uint256" }, { name: "status", type: "uint8" }], outputs: [] },
+  { type: "function", name: "getVerification", stateMutability: "view", inputs: [{ name: "batchId", type: "uint256" }], outputs: [
+    { name: "status", type: "uint8" },
+    { name: "by", type: "address" },
+    { name: "at", type: "uint256" }
+  ] },
   { type: "function", name: "setMinPriceInr", stateMutability: "nonpayable", inputs: [{ name: "batchId", type: "uint256" }, { name: "minPriceINR", type: "uint256" }], outputs: [] },
   { type: "function", name: "setPriceByDistributorInr", stateMutability: "nonpayable", inputs: [{ name: "batchId", type: "uint256" }, { name: "price", type: "uint256" }], outputs: [] },
   { type: "function", name: "setPriceByRetailerInr", stateMutability: "nonpayable", inputs: [{ name: "batchId", type: "uint256" }, { name: "price", type: "uint256" }], outputs: [] },
@@ -42,7 +48,10 @@ export const AGRI_TRUTH_CHAIN_ABI = [
     { name: "priceByRetailerINR", type: "uint256" },
     { name: "boughtByDistributorAt", type: "uint256" },
     { name: "boughtByRetailerAt", type: "uint256" },
-    { name: "boughtByConsumerAt", type: "uint256" }
+    { name: "boughtByConsumerAt", type: "uint256" },
+    { name: "verificationStatus", type: "uint8" },
+    { name: "verificationBy", type: "address" },
+    { name: "verificationAt", type: "uint256" }
   ] },
   { type: "function", name: "getAllBatchIds", stateMutability: "view", inputs: [], outputs: [{ type: "uint256[]" }] },
   { type: "function", name: "owner", stateMutability: "view", inputs: [], outputs: [{ type: "address" }] },
@@ -66,5 +75,11 @@ export const AGRI_TRUTH_CHAIN_ABI = [
     { name: "minPriceINR", type: "uint256", indexed: false },
     { name: "priceByDistributorINR", type: "uint256", indexed: false },
     { name: "priceByRetailerINR", type: "uint256", indexed: false }
+  ], anonymous: false }
+  ,{ type: "event", name: "VerificationStatusUpdated", inputs: [
+    { name: "batchId", type: "uint256", indexed: true },
+    { name: "status", type: "uint8", indexed: false },
+    { name: "by", type: "address", indexed: true },
+    { name: "at", type: "uint256", indexed: false }
   ], anonymous: false }
 ];

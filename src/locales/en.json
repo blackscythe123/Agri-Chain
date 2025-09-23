@@ -14,7 +14,8 @@
     "privacy": "Privacy Policy",
     "terms": "Terms of Service",
     "cookies": "Cookie Policy",
-    "login": "Login"
+    "login": "Login",
+    "verifiers": "Verifiers"
   },
   "footer": {
     "resources": "Resources",
@@ -48,7 +49,10 @@
     "retailer": "Retailer",
     "consumer": "Consumer",
     "holder": "Holder",
-    "unknown": "Unknown"
+    "unknown": "Unknown",
+    "verified": "Verified",
+    "pending": "Pending",
+    "unverified": "Unverified"
   },
   "common": {
     "loading": "Loading...",
@@ -80,5 +84,134 @@
     "password": "Password",
     "continue": "Continue",
     "testNote": "Test-only: accepts any email/password. You'll need to logout to switch roles."
+  }
+  ,
+  "verifier": {
+    "title": "Verifier Dashboard",
+    "reviewTitle": "Review & Verify Batches",
+    "noBatches": "No batches found.",
+    "noMatches": "No matching results.",
+    "status": "Status",
+    "searchPlaceholder": "Search by ID, crop, or holder...",
+    "sortBy": "Sort by",
+    "sort": {
+      "idDesc": "ID: Newest first",
+      "idAsc": "ID: Oldest first",
+      "qtyDesc": "Quantity: High to Low",
+      "qtyAsc": "Quantity: Low to High",
+      "cropAsc": "Crop: A → Z",
+      "cropDesc": "Crop: Z → A"
+    },
+    "actions": {
+      "unverified": "Unverified",
+      "pending": "Pending",
+      "verified": "Verified"
+    },
+    "errors": {
+      "alreadyVerified": "Already verified. Status cannot be changed.",
+      "saveFailed": "Save failed",
+      "loadFailed": "Failed to load",
+      "secretRequired": "Verifier key required to verify."
+    },
+    "confirmVerify": "Are you sure you want to verify this batch? This action cannot be undone.",
+    "promptSecret": "Enter your verifier key (testing: any input is accepted)",
+    "confirmTitle": "Confirm Verification",
+    "secretLabel": "Verifier Key"
+  }
+  ,
+  "farmers": {
+    "title": "Farmer Dashboard",
+    "form": {
+      "cropType": "Crop Type",
+      "quantityKg": "Quantity (kg)",
+      "pricePerKg": "Farmer Price / kg (₹)",
+      "harvestDate": "Harvest Date",
+      "farmerAddress": "Farmer Address (EOA)"
+    },
+    "actions": {
+      "register": "Register Produce",
+      "registering": "Registering…"
+    },
+    "sections": {
+      "myBatches": "My Batches",
+      "owner": "Owner:",
+      "view": "View"
+    },
+    "errors": {
+      "enterCrop": "Enter crop type",
+      "enterQty": "Enter valid quantity (kg)",
+      "enterPrice": "Enter farmer price per kg (₹)",
+      "chooseHarvest": "Choose harvest date",
+      "enterEOA": "Enter a valid farmer EOA (0x...)",
+      "registeredNoId": "Batch registered but batchId not decoded. Please refresh Batches list later.",
+      "registerFailed": "Failed to register batch"
+    }
+  },
+  "distributors": {
+    "title": "Distributor Dashboard",
+    "browse": "Browse Available Produce",
+    "selectBatch": "Select batch",
+    "setRetailerPrice": "Set Retailer Price (₹ total)",
+    "buttons": { "pay": "Pay Farmer (Stripe)", "refresh": "Refresh" },
+    "starting": "Starting…",
+    "messages": {
+      "login": "Please login to continue",
+      "select": "Select a batch",
+      "missingMin": "Missing on-chain min price",
+      "startFailed": "Failed to start payment"
+    },
+    "noneAvailable": "No verified farmer-held batches available. Ask verifier to verify batches.",
+    "buyerAddress": "Buyer Address (EOA)"
+  },
+  "retailers": {
+    "title": "Retailer Dashboard",
+    "selectBatch": "Select batch",
+    "setConsumerPrice": "Set Consumer Price (₹ total)",
+    "buttons": { "pay": "Pay Distributor (Stripe)", "refresh": "Refresh" },
+    "starting": "Starting…",
+    "messages": {
+      "login": "Please login to continue",
+      "select": "Select a batch",
+      "missingPrice": "Missing on-chain price",
+      "updated": "Retail price updated",
+      "setFailed": "Failed to set price",
+      "failed": "Failed",
+      "startFailed": "Failed to start payment"
+    },
+    "amount": "amount"
+  },
+  "consumers": {
+    "title": "Consumer Dashboard",
+    "selectBatch": "Select batch",
+    "buttons": { "pay": "Pay Retailer (Stripe)", "refresh": "Refresh" },
+    "starting": "Starting…",
+    "messages": {
+      "login": "Please login to continue",
+      "select": "Select a batch",
+      "missingPrice": "Missing on-chain price",
+      "failed": "Failed",
+      "startFailed": "Failed to start payment"
+    },
+    "amount": "amount"
+  },
+  "batchDetails": {
+    "title": "Batch Details",
+    "error": "Error",
+    "labels": {
+      "batch": "Batch",
+      "crop": "Crop",
+      "quantity": "Quantity",
+      "farmer": "Farmer",
+      "owner": "Owner",
+      "ownerRole": "Owner Role",
+      "farmerPrice": "Farmer Price (₹)",
+      "harvest": "Harvest",
+      "created": "Created",
+      "distributorPrice": "Distributor Price (₹)",
+      "retailerPrice": "Retailer Price (₹)",
+      "f2d": "Farmer → Distributor",
+      "d2r": "Distributor → Retailer",
+      "r2c": "Retailer → Consumer"
+    }
   }
 }

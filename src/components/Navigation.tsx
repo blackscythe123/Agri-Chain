@@ -24,25 +24,26 @@ const Navigation = () => {
     { label: t("nav.distributors"), href: "/distributors" },
     { label: t("nav.retailers"), href: "/retailers" },
     { label: t("nav.consumers"), href: "/consumers" },
+    { label: t("nav.verifiers"), href: "/verifiers" },
   ];
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-3 sm:px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-3">
+          <Link to="/" className="flex items-center gap-2 sm:gap-3">
             <div className="p-2 bg-gradient-primary rounded-lg">
               <Leaf className="w-6 h-6 text-primary-foreground" />
             </div>
-            <div>
-              <h1 className="font-bold text-lg">AgriChain</h1>
-              <p className="text-xs text-muted-foreground">Transparency Platform</p>
+            <div className="leading-tight">
+              <h1 className="font-bold text-base sm:text-lg">AgriChain</h1>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">Transparency Platform</p>
             </div>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex items-center gap-6 lg:gap-8">
             {navItems.map((item) => (
               <Link
                 key={item.label}
@@ -55,7 +56,7 @@ const Navigation = () => {
           </div>
 
           {/* Actions */}
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-3 sm:gap-4">
             <LanguageSwitcher />
             <Link to="/login">
               <Button variant="hero" size="sm">
@@ -78,7 +79,7 @@ const Navigation = () => {
 
         {/* Mobile Menu */}
             {isMenuOpen && (
-          <div className="md:hidden py-4 space-y-4 border-t border-border animate-fade-in">
+          <div className="md:hidden py-3 space-y-3 border-t border-border animate-fade-in">
             {navItems.map((item) => (
               <Link
                 key={item.label}

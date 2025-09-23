@@ -1,6 +1,6 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useMemo, useState } from "react";
 
-export type Role = "farmer" | "distributor" | "retailer" | "consumer" | "admin";
+export type Role = "farmer" | "distributor" | "retailer" | "consumer" | "verifier" | "admin";
 export type AuthUser = { role: Role; email?: string; address?: string } | null;
 
 type AuthCtx = {
@@ -14,12 +14,15 @@ type AuthCtx = {
 const Ctx = createContext<AuthCtx | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<AuthUser>(null);
-
-  useEffect(() => {
-    const raw = localStorage.getItem("auth:user");
-    if (raw) setUser(JSON.parse(raw));
-  }, []);
+  // Initialize from localStorage synchronously so ProtectedRoute sees a user on first render
+  const [user, setUser] = useState<AuthUser>(() => {
+    try {
+      const raw = localStorage.getItem("auth:user");
+      return raw ? (JSON.parse(raw) as AuthUser) : null;
+    } catch {
+      return null;
+    }
+  });
 
   const value = useMemo<AuthCtx>(() => ({
     user,

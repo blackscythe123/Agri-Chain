@@ -69,7 +69,18 @@ The following technologies power **Agri-Chain**, along with their icons and usag
 - **Idempotent Webhooks**  
   Automatic duplicate-write protection (handles nonce errors).
 
-📦 Prerequisites
+� Verifier UX & Workflow (Latest)
+
+- **Themed Verify Modal**  
+  Verifiers get a themed dialog to confirm and enter a passkey before marking a batch as Verified.
+- **Search & Sorting on Verifier Dashboard**  
+  Quickly filter by `ID`, `crop`, or `holder` and sort by `ID`, `quantity`, or `crop` (asc/desc). Verified batches remain hidden.
+- **One-way Verification Rules**  
+  Verified items cannot be edited; only allowed transitions between `unverified` and `pending` before final verify.
+- **i18n Coverage**  
+  English, Tamil, Hindi, and Odia across Navigation, Hero, Login, Index, and Verifier flows.
+
+�📦 Prerequisites
 
 - **Node.js** ≥ 18  
 - **npm**  
@@ -110,7 +121,11 @@ Open http://localhost:8000 in your browser.
 
 ```bash
 curl -X POST http://localhost:3001/api/setup-relayer-as-verifier
-```  
+```
+or if native binary not working 
+```bash
+Invoke-RestMethod -Method Post -Uri http://localhost:3001/api/setup-relayer-as-verifier | ConvertTo-Json -Depth 6
+```
 Response returns a transaction hash on success.
 
 🔄 Core Flows
@@ -143,12 +158,19 @@ Response returns a transaction hash on success.
 | POST   | `/api/setup-relayer-as-verifier`     | Mark relayer as verifier (one-time)         |
 | GET    | `/api/chain-info`                    | Dev diagnostics                             |
 
+ℹ️ API Documentation Link
+
+The footer "API Documentation" link points to this README’s API section on GitHub:  
+https://github.com/blackscythe123/Agri-Chain#api-endpoints
+
 🎨 Frontend Highlights
 
 - **Recent Batches Timeline**  
-  Paginated view (3 batches per page), search by Batch ID, role badges, detail modal with prices & addresses.
-- **Resource Pages**  
-  How It Works · Blockchain Guide · Fair Trade · API Docs · Support (with diagrams & live data snippets).
+  Paginated view (3 per page), searchable by Batch ID on Index. Status badges (Unverified/Pending/Verified) visible.
+- **Verifier Dashboard**  
+  Search + sort controls, themed verification modal with passkey, and strict one-way transitions.
+- **Footer Resources**  
+  Includes a GitHub link to the repo and API Documentation linking back to this README’s API section.
 
 🛠️ Scripts
 

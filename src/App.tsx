@@ -28,6 +28,7 @@ import DistributorProfile from "./pages/profiles/DistributorProfile";
 import RetailerProfile from "./pages/profiles/RetailerProfile";
 import ConsumerProfile from "./pages/profiles/ConsumerProfile";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Verifiers from "./pages/Verifiers";
 
 const queryClient = new QueryClient();
 
@@ -61,6 +62,9 @@ const App = () => (
             <Route element={<ProtectedRoute role="consumer" />}> 
               <Route path="/consumers" element={<Consumers />} />
               <Route path="/profile/consumer" element={<ConsumerProfile />} />
+            </Route>
+            <Route element={<ProtectedRoute role="verifier" />}> 
+              <Route path="/verifiers" element={<Verifiers />} />
             </Route>
             <Route path="/blockchain-guide" element={<BlockchainGuide />} />
             <Route path="/fair-trade" element={<FairTrade />} />

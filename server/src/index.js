@@ -8,6 +8,7 @@ import { createPublicClient, createWalletClient, decodeEventLog, http } from 'vi
 import { privateKeyToAccount } from 'viem/accounts'
 import { arbitrumSepolia } from 'viem/chains'
 import { AGRI_TRUTH_CHAIN_ABI, AGRI_TRUTH_CHAIN_ADDRESS } from './contract.js'
+import { readAll as readVerification, writeFor as writeVerification } from './verificationStore.js'
 
 // Default EOAs for testing when inputs are missing
 const DEFAULT_ADDRESSES = {
@@ -56,6 +57,33 @@ async function hasContractCode() {
   contractHasCode = !!code
   contractCodeCheckedAt = now
   return contractHasCode
+}
+
+// Map verification numeric -> label
+const vNumToLabel = (n) => (n === 2 ? 'verified' : (n === 1 ? 'pending' : 'unverified'))
+
+async function getVerificationStatusChain(batchId) {
+  try {
+    if (!isValidAddress(CONTRACT_ADDRESS)) return null
+    const code = await client.getBytecode({ address: CONTRACT_ADDRESS })
+    if (!code) return null
+    const out = await client.readContract({ address: CONTRACT_ADDRESS, abi: AGRI_TRUTH_CHAIN_ABI, functionName: 'getVerification', args: [BigInt(batchId)] })
+    const statusNum = Number(out?.[0] ?? 0)
+    return { status: vNumToLabel(statusNum), by: out?.[1] || null, timestamp: Number(out?.[2] || 0n) }
+  } catch { return null }
+}
+
+async function setVerificationStatusChain(batchId, statusLabel) {
+  try {
+    if (!wallet || !account) return { ok: false, error: 'relayer_not_configured' }
+    if (!isValidAddress(CONTRACT_ADDRESS)) return { ok: false, error: 'invalid_contract_address' }
+    const code = await client.getBytecode({ address: CONTRACT_ADDRESS })
+    if (!code) return { ok: false, error: 'not_a_contract' }
+    const statusNum = statusLabel === 'verified' ? 2 : (statusLabel === 'pending' ? 1 : 0)
+    const tx = await wallet.writeContract({ address: CONTRACT_ADDRESS, abi: AGRI_TRUTH_CHAIN_ABI, functionName: 'setVerificationStatus', args: [BigInt(batchId), statusNum] })
+    await client.waitForTransactionReceipt({ hash: tx })
+    return { ok: true, tx }
+  } catch (e) { return { ok: false, error: e?.message || 'set_verification_failed' } }
 }
 
 // Log relayer status
@@ -185,6 +213,20 @@ app.use(express.json())
 app.post('/create-checkout-session', async (req, res) => {
   try {
     const { lineItems, successUrl, cancelUrl, metadata } = req.body
+    // If a batch is specified, require verified status before allowing checkout
+    try {
+      const batchIdStr = metadata?.batchId
+      if (batchIdStr && /^[0-9]+$/.test(String(batchIdStr))) {
+        let status = null
+        const vChain = await getVerificationStatusChain(batchIdStr)
+        status = vChain?.status || null
+        if (!status) {
+          const v = readVerification()[String(batchIdStr)]
+          status = v?.status || 'unverified'
+        }
+        if (status !== 'verified') return res.status(400).json({ error: 'batch_not_verified' })
+      }
+    } catch {}
     // Expect unit_amount already in INR paise; enforce currency and minimal amount
     const STRIPE_MAX = 999_999_999_999
     const safeLineItems = (Array.isArray(lineItems) ? lineItems : []).map((item) => {
@@ -336,6 +378,7 @@ app.get('/api/batches', async (req, res) => {
         if (!seen.has(id)) { seen.add(id); ids.push(id) }
       }
     }
+  const vAll = readVerification()
   const results = await Promise.all(ids.map(async (id) => {
       let b
       try {
@@ -464,12 +507,17 @@ app.get('/api/batches', async (req, res) => {
       if (!record.distributor || record.distributor === '0x0000000000000000000000000000000000000000') record.distributor = DEFAULT_ADDRESSES.DISTRIBUTOR
       if (!record.retailer || record.retailer === '0x0000000000000000000000000000000000000000') record.retailer = DEFAULT_ADDRESSES.RETAILER
       if (!record.consumer || record.consumer === '0x0000000000000000000000000000000000000000') record.consumer = DEFAULT_ADDRESSES.CONSUMER
+      let verificationChain = null
+      try {
+        verificationChain = await getVerificationStatusChain(Number(record.id))
+      } catch {}
       return {
         ...record,
         currentHolder: record.currentOwner,
         'current-holder': record.currentOwner,
         current_holder: record.currentOwner,
         currentHolderRole: role,
+        verification: verificationChain || vAll[String(record.id)] || { status: 'unverified', by: null, timestamp: null },
         dates,
         prices
       }
@@ -558,6 +606,9 @@ app.get('/api/batch/:id', async (req, res) => {
       byDistributorINR: batch.priceByDistributorINR,
       byRetailerINR: batch.priceByRetailerINR
     }
+    const vAll = readVerification()
+    let verificationChain = null
+    try { verificationChain = await getVerificationStatusChain(Number(batch.id)) } catch {}
     res.json({
       batch: {
         ...batch,
@@ -565,6 +616,7 @@ app.get('/api/batch/:id', async (req, res) => {
         'current-holder': batch.currentOwner,
         current_holder: batch.currentOwner,
         currentHolderRole,
+        verification: verificationChain || vAll[String(batch.id)] || { status: 'unverified', by: null, timestamp: null },
         dates,
         prices
       }
@@ -573,6 +625,38 @@ app.get('/api/batch/:id', async (req, res) => {
     console.error('batch read failed', e)
     res.status(500).json({ error: 'read_failed' })
   }
+})
+
+// Verification: get single or all statuses
+app.get('/api/verification-status/:id?', (req, res) => {
+  try {
+    const all = readVerification()
+    const id = req.params.id
+    if (id) return res.json({ status: all[String(id)] || null })
+    res.json({ all })
+  } catch (e) {
+    res.status(500).json({ error: 'verification_read_failed' })
+  }
+})
+
+// Verification: set status (simple auth-less for prototype; secure in production)
+app.post('/api/verification-status', (req, res) => {
+  (async () => {
+    try {
+      const { batchId, status, by } = req.body || {}
+      if (!batchId || !/^[0-9]+$/.test(String(batchId))) return res.status(400).json({ error: 'invalid_batch_id' })
+      if (!['unverified','pending','verified'].includes(String(status))) return res.status(400).json({ error: 'invalid_status' })
+      // Try on-chain first
+      const onchain = await setVerificationStatusChain(String(batchId), String(status))
+      if (onchain?.ok) return res.json({ ok: true, onchain: true, tx: onchain.tx })
+      // Fallback to file store
+      const entry = { status: String(status), by: by || null, timestamp: Date.now() }
+      writeVerification(String(batchId), entry)
+      res.json({ ok: true, onchain: false })
+    } catch (e) {
+      res.status(500).json({ error: 'verification_write_failed' })
+    }
+  })()
 })
 
 // Diagnostics: show chain, rpc, and contract bytecode presence

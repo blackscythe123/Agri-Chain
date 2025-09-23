@@ -23,6 +23,10 @@ contract AgriTruthChain {
         uint256 boughtByDistributorAt;
         uint256 boughtByRetailerAt;
         uint256 boughtByConsumerAt;
+        // On-chain verification fields
+        uint8 verificationStatus; // 0 = unverified, 1 = pending, 2 = verified
+        address verificationBy;
+        uint256 verificationAt;
     }
 
     uint256 public nextBatchId = 1;
@@ -37,6 +41,7 @@ contract AgriTruthChain {
     event VerifierSet(address indexed verifier, bool allowed);
     // pricing, shipment, payment events removed
     event PricesUpdatedINR(uint256 indexed batchId, uint256 minPriceINR, uint256 priceByDistributorINR, uint256 priceByRetailerINR);
+    event VerificationStatusUpdated(uint256 indexed batchId, uint8 status, address indexed by, uint256 at);
 
     modifier onlyOwner() { require(msg.sender == owner, "not-owner"); _; }
 
@@ -79,7 +84,10 @@ contract AgriTruthChain {
             priceByRetailerINR: 0,
             boughtByDistributorAt: 0,
             boughtByRetailerAt: 0,
-            boughtByConsumerAt: 0
+            boughtByConsumerAt: 0,
+            verificationStatus: 0,
+            verificationBy: address(0),
+            verificationAt: 0
         });
         batchIds.push(batchId);
         emit BatchRegistered(batchId, farmer, cropType, quantityKg, basePriceINR, harvestDate, metadataCID);
@@ -138,6 +146,25 @@ contract AgriTruthChain {
     function transferOwnershipByVerifier(uint256 batchId, address to) external {
         require(verifiers[msg.sender] || msg.sender == owner, "not-verifier");
         _updateOwner(batchId, to);
+    }
+
+    // Set verification status: only owner contract admin or authorized verifiers
+    // status: 0 = unverified, 1 = pending, 2 = verified
+    function setVerificationStatus(uint256 batchId, uint8 status) external {
+        require(verifiers[msg.sender] || msg.sender == owner, "not-verifier");
+        require(status <= 2, "bad-status");
+        Batch storage b = batches[batchId];
+        require(b.exists, "batch-not-found");
+        b.verificationStatus = status;
+        b.verificationBy = msg.sender;
+        b.verificationAt = block.timestamp;
+        emit VerificationStatusUpdated(batchId, status, msg.sender, block.timestamp);
+    }
+
+    function getVerification(uint256 batchId) external view returns (uint8 status, address by, uint256 at) {
+        Batch storage b = batches[batchId];
+        require(b.exists, "batch-not-found");
+        return (b.verificationStatus, b.verificationBy, b.verificationAt);
     }
 
 

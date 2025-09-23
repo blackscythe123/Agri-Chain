@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 const HeroSection = () => {
   const { t } = useTranslation();
   return (
-  <section id="about" className="relative min-h-screen flex items-center justify-center overflow-hidden scroll-mt-24">
+  <section id="about" className="relative min-h-[70vh] sm:min-h-screen flex items-center justify-center overflow-hidden scroll-mt-24">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
         <img 
@@ -20,8 +20,8 @@ const HeroSection = () => {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 container mx-auto px-4 py-20">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+      <div className="relative z-10 container mx-auto px-4 py-16 sm:py-20">
+        <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 items-center">
           
           {/* Left Column - Text Content */}
           <div className="space-y-8 animate-fade-in">
@@ -31,7 +31,7 @@ const HeroSection = () => {
                 {t("hero.badge")}
               </Badge>
               
-              <h1 className="text-4xl md:text-6xl font-bold leading-tight">
+              <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold leading-tight">
                 <span className="bg-gradient-primary bg-clip-text text-transparent">
                   {t("hero.title1")}
                 </span>
@@ -44,7 +44,7 @@ const HeroSection = () => {
               </p>
             </div>
 
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap gap-3 sm:gap-4">
               <a href="/#scanner">
                 <Button variant="hero" size="lg" className="group">
                   <QrCode className="w-5 h-5 mr-2 group-hover:animate-float" />
