@@ -1,12 +1,71 @@
+import { useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Leaf, Shield, Eye, QrCode } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Leaf, Shield, Eye, QrCode, Copy, Link as LinkIcon, Download } from "lucide-react";
 import heroImage from "@/assets/hero-agriculture.jpg";
 import { useTranslation } from "react-i18next";
+import { QRCodeCanvas } from "qrcode.react";
+import { useToast } from "@/components/ui/use-toast";
 
 const HeroSection = () => {
   const { t } = useTranslation();
+
+  // QR Modal state
+  const [qrOpen, setQrOpen] = useState(false);
+  const [batchId, setBatchId] = useState("");
+  const qrWrapRef = useRef<HTMLDivElement | null>(null);
+  const { toast } = useToast();
+
+  // Build destination using env-based site URL, fallback to current origin
+  const SITE_URL = (import.meta.env.VITE_SITE_URL as string) ||
+    (typeof window !== "undefined" ? window.location.origin : "");
+  const BASE_URL = `${SITE_URL.replace(/\/$/, "")}/batch?id=`;
+  // Sanitize id (digits only) but keep user's input for display
+  const sanitizedId = useMemo(() => batchId.replace(/\D/g, ""), [batchId]);
+  const hasInput = batchId.trim().length > 0;
+  const isValid = sanitizedId.length > 0;
+  const targetUrl = isValid ? `${BASE_URL}${encodeURIComponent(sanitizedId)}` : "";
+
+  const handleCopyUrl = async () => {
+    try {
+      if (!isValid) return;
+      await navigator.clipboard.writeText(targetUrl);
+      toast({ title: "Link copied", description: targetUrl, duration: 1800 });
+    } catch {
+      // no-op
+    }
+  };
+
+  const handleDownload = () => {
+    const canvas = qrWrapRef.current?.querySelector("canvas");
+    if (!canvas) return;
+    const dataUrl = canvas.toDataURL("image/png");
+    const a = document.createElement("a");
+    a.href = dataUrl;
+    a.download = `batch-${sanitizedId || "qr"}.png`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  };
+  const handleShare = async () => {
+    try {
+      if (!isValid || typeof navigator === "undefined" || !navigator.share) return;
+      await navigator.share({ title: "AgriTruthChain Batch", text: `Batch #${sanitizedId}`, url: targetUrl });
+    } catch {
+      // user might cancel share; ignore
+    }
+  };
   return (
   <section id="about" className="relative min-h-[70vh] sm:min-h-screen flex items-center justify-center overflow-hidden scroll-mt-24">
       {/* Background Image with Overlay */}
@@ -45,12 +104,18 @@ const HeroSection = () => {
             </div>
 
             <div className="flex flex-wrap gap-3 sm:gap-4">
-              <a href="/#scanner">
-                <Button variant="hero" size="lg" className="group">
-                  <QrCode className="w-5 h-5 mr-2 group-hover:animate-float" />
-                  {t("hero.scanButton")}
-                </Button>
-              </a>
+              <Button
+                variant="hero"
+                size="lg"
+                className="group"
+                onClick={() => {
+                  setBatchId("");
+                  setQrOpen(true);
+                }}
+              >
+                <QrCode className="w-5 h-5 mr-2 group-hover:animate-float" />
+                {t("hero.scanButton")}
+              </Button>
               <a href="/how-it-works">
                 <Button variant="outline" size="lg">
                   <Shield className="w-5 h-5 mr-2" />
@@ -110,6 +175,81 @@ const HeroSection = () => {
           </div>
         </div>
       </div>
+
+  {/* QR Generator Modal */}
+  {/* Redesigned: input+preview with validation and actions */}
+      <Dialog open={qrOpen} onOpenChange={setQrOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Scan or Generate Product QR</DialogTitle>
+            <DialogDescription>
+              Enter a batch ID and we’ll generate a scannable QR that opens the product’s details page.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid gap-6 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="batchId">Batch ID</Label>
+              <Input
+                id="batchId"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                placeholder="#105 or 105"
+                value={batchId}
+                onChange={(e) => setBatchId(e.target.value)}
+                aria-invalid={hasInput && !isValid}
+              />
+              <div className="text-xs text-muted-foreground">
+                {hasInput && !isValid ? (
+                  <span className="text-destructive">Enter digits only (e.g., 105)</span>
+                ) : (
+                  <span>We’ll use <span className="font-mono">{sanitizedId || "—"}</span> as the batch ID</span>
+                )}
+              </div>
+            </div>
+
+            <div className="flex flex-col items-center gap-3">
+              <div className="p-4 rounded-lg bg-muted border min-h-[268px] min-w-[268px] flex items-center justify-center" ref={qrWrapRef}>
+                {isValid ? (
+                  <QRCodeCanvas value={targetUrl} size={220} level="M" includeMargin />
+                ) : (
+                  <div className="flex flex-col items-center text-muted-foreground">
+                    <QrCode className="w-12 h-12 mb-2" />
+                    <span className="text-sm">Enter a valid batch ID to preview the QR</span>
+                  </div>
+                )}
+              </div>
+              <p className="text-sm text-muted-foreground break-all text-center w-full">
+                {isValid ? targetUrl : `${BASE_URL}<id>`}
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter className="flex flex-col sm:flex-row gap-2 justify-between sm:items-center">
+            <div className="flex flex-wrap gap-2 order-2 sm:order-1">
+              <Button variant="outline" size="sm" onClick={handleCopyUrl} disabled={!isValid}>
+                <Copy className="w-4 h-4 mr-1" /> Copy URL
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleDownload} disabled={!isValid}>
+                <Download className="w-4 h-4 mr-1" /> Download QR
+              </Button>
+              <a href={isValid ? targetUrl : undefined} target="_blank" rel="noreferrer noopener">
+                <Button variant="ghost" size="sm" disabled={!isValid}>
+                  <LinkIcon className="w-4 h-4 mr-1" /> Open Link
+                </Button>
+              </a>
+              {typeof navigator !== "undefined" && (navigator as any).share ? (
+                <Button variant="ghost" size="sm" onClick={handleShare} disabled={!isValid}>
+                  <LinkIcon className="w-4 h-4 mr-1" /> Share
+                </Button>
+              ) : null}
+            </div>
+            <div className="order-1 sm:order-2">
+              <Button onClick={() => setQrOpen(false)}>Close</Button>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 };
