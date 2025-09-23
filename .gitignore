@@ -29,3 +29,12 @@ dist-ssr
 *.env
 !.env.example
 !**/.env.example
+
+
+# Ignore large/generated files
+*.zip
+*.pid
+*combined.txt
+repo.zip
+all_files_combined.txt
+file_tree.txt

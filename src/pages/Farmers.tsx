@@ -22,7 +22,7 @@ const Farmers = () => {
       const basePricePerKg = Number(form.basePricePerKg || 0)
       if (!form.cropType.trim()) { alert('Enter crop type'); return }
       if (!quantityKg || Number.isNaN(quantityKg)) { alert('Enter valid quantity (kg)'); return }
-  if (!basePricePerKg || Number.isNaN(basePricePerKg)) { alert('Enter farmer price per kg (₹)'); return }
+      if (!basePricePerKg || Number.isNaN(basePricePerKg)) { alert('Enter farmer price per kg (₹)'); return }
       if (!form.harvestDate) { alert('Choose harvest date'); return }
       const farmerAddress = form.farmerAddress?.trim() || DEFAULT_ADDRESSES.FARMER
       if (!isHexAddress(farmerAddress)) { alert('Enter a valid farmer EOA (0x...)'); return }
@@ -32,10 +32,10 @@ const Farmers = () => {
       const res = await fetch('/api/register-batch', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cropType: form.cropType, quantityKg, basePriceINR, minPriceINR, harvestDate: harvestDateSec, metadataCID: '' , farmerAddress })
+        body: JSON.stringify({ cropType: form.cropType, quantityKg, basePriceINR, minPriceINR, harvestDate: harvestDateSec, metadataCID: '', farmerAddress })
       })
-  const data = await res.json()
-  if (!res.ok) throw new Error(`${data?.error || 'failed'}${data?.message ? `: ${data.message}` : ''}`)
+      const data = await res.json()
+      if (!res.ok) throw new Error(`${data?.error || 'failed'}${data?.message ? `: ${data.message}` : ''}`)
       if (!data.batchId || !/^[0-9]+$/.test(data.batchId)) {
         alert('Batch registered but batchId not decoded. Please refresh Batches list later.')
       } else {
@@ -47,13 +47,14 @@ const Farmers = () => {
           harvestDate: form.harvestDate,
           farmer: 'you',
           owner: 'you',
+          status: data?.data?.status || 'pending_verification'
         }
         setBatches(prev => [newItem, ...prev])
         // Navigate to details for immediate feedback
         nav(`/batch?id=${encodeURIComponent(newItem.batchId)}`)
       }
-  setForm({ cropType: "", quantityKg: "", basePricePerKg: "", harvestDate: "", farmerAddress: DEFAULT_ADDRESSES.FARMER });
-  } catch (e: any) { console.error(e); alert(`Failed to register batch${e?.message ? `: ${e.message}` : ''}`); }
+      setForm({ cropType: "", quantityKg: "", basePricePerKg: "", harvestDate: "", farmerAddress: DEFAULT_ADDRESSES.FARMER });
+    } catch (e: any) { console.error(e); alert(`Failed to register batch${e?.message ? `: ${e.message}` : ''}`); }
     finally { setSubmitting(false) }
   };
 
@@ -62,7 +63,7 @@ const Farmers = () => {
       <Navigation />
       <main className="container mx-auto px-4 py-28 space-y-8">
         <h1 className="text-3xl font-bold">Farmer Dashboard</h1>
-  <TestingAddresses />
+        <TestingAddresses />
         <Card className="p-6 grid md:grid-cols-4 gap-4">
           <div className="md:col-span-1 space-y-2">
             <Label>Crop Type</Label>

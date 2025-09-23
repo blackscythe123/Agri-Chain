@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ review/** ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install root deps
+        run: npm ci
+      - name: Build frontend
+        run: npm run build
+      - name: Install server deps
+        working-directory: server
+        run: npm ci
+      - name: Start server (background)
+        working-directory: server
+        env:
+          PORT: 3001
+        run: |
+          node src/index.js &
+          echo $! > ../server.pid
+          n=0
+          until [ $n -ge 25 ]
+          do
+            curl -sf http://localhost:3001/health && break
+            n=$((n+1))
+            sleep 1
+          done
+      - name: Smoke test endpoints
+        run: |
+          curl -sf http://localhost:3001/health
+          curl -sf http://localhost:3001/api/verifier/queue
+      - name: Stop server
+        if: always()
+        run: |
+          if [ -f server.pid ]; then kill $(cat server.pid) || true; fi
+

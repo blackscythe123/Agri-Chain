@@ -20,7 +20,15 @@ export default function Login() {
 
   const go = () => {
     if (!email || !password) return;
-    const dest = role === "farmer" ? "/farmers" : role === "distributor" ? "/distributors" : role === "retailer" ? "/retailers" : "/consumers";
+    const dest = role === "farmer"
+      ? "/farmers"
+      : role === "distributor"
+        ? "/distributors"
+        : role === "retailer"
+          ? "/retailers"
+          : role === "verifier"
+            ? "/verifier"
+            : "/consumers";
     // For testing, accept any email/password; no OTP and no wallet required
     login({ role, email });
     nav(dest);
@@ -34,15 +42,20 @@ export default function Login() {
         <p className="text-muted-foreground">{t("login.description")}</p>
 
         <Card className="p-6">
-          <Tabs defaultValue="consumer" onValueChange={(v)=>setRole(v as any)}>
-            <TabsList className="grid grid-cols-4 max-w-xl">
+
+          <Tabs defaultValue="consumer" onValueChange={(v) => setRole(v as any)}>
+            <TabsList className="grid grid-cols-5 max-w-2xl">
+
               <TabsTrigger value="farmer">{t("nav.farmers")}</TabsTrigger>
               <TabsTrigger value="distributor">{t("nav.distributors")}</TabsTrigger>
               <TabsTrigger value="retailer">{t("nav.retailers")}</TabsTrigger>
               <TabsTrigger value="consumer">{t("nav.consumers")}</TabsTrigger>
+
+              <TabsTrigger value="verifier">Verifier</TabsTrigger>
+
             </TabsList>
 
-            {(["farmer","distributor","retailer","consumer"] as const).map(r => (
+            {(["farmer", "distributor", "retailer", "consumer", "verifier"] as const).map(r => (
               <TabsContent value={r} key={r} className="mt-6">
                 <div className="max-w-md">
                   <Card className="p-6">
@@ -50,11 +63,13 @@ export default function Login() {
                     <div className="space-y-3">
                       <div className="space-y-1">
                         <Label>{t("login.email")}</Label>
-                        <Input value={email} onChange={(e)=>setEmail(e.target.value)} placeholder="you@gmail.com" />
+
+                        <Input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@gmail.com" />
                       </div>
                       <div className="space-y-1">
                         <Label>{t("login.password")}</Label>
-                        <Input type="password" value={password} onChange={(e)=>setPassword(e.target.value)} placeholder="••••••••" />
+                        <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
+
                       </div>
                       <div className="flex gap-2">
                         <Button onClick={go}>{t("login.continue")}</Button>
