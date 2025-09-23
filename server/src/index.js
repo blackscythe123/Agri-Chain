@@ -46,6 +46,13 @@ const isSameAddress = (a, b) => (a && b) ? a.toLowerCase() === b.toLowerCase() :
 // All pricing is INR on-chain now; Stripe expects amounts in INR paise (minor units)
 
 // Tiny cache for contract bytecode presence to avoid repeated RPC calls per request
+import cors from "cors";
+app.use(cors({
+  origin: "*", // or better: "https://your-frontend.vercel.app"
+  methods: ["GET", "POST"],
+  credentials: true
+}));
+
 let contractHasCode = null
 let contractCodeCheckedAt = 0
 const CONTRACT_CODE_TTL_MS = 30_000
