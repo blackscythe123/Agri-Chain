@@ -1,5 +1,5 @@
 {
-  "name": "agri-truth-chain-server",
+  "name": "agri-chain-server",
   "private": true,
   "type": "module",
   "version": "0.1.0",
