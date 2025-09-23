@@ -685,8 +685,10 @@ app.get('/api/chain-info', async (req, res) => {
     res.status(500).json({ error: 'diagnostic_failed', message: e?.message || String(e) })
   }
 })
-
-app.listen(port, () => console.log(`Server listening on http://localhost:${port}`))
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server listening on port ${PORT}`);
+});
 
 // Diagnostics: raw tuple read and event fallback for a batch id
 app.get('/api/debug/batch-raw/:id', async (req, res) => {
