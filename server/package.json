@@ -1,5 +1,5 @@
 {
-  "name": "agri-chain-server",
+  "name": "FarmLedge-server",
   "private": true,
   "type": "module",
   "version": "0.1.0",

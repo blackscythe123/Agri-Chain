@@ -111,7 +111,7 @@ const Footer = () => {
                 <HoverCard>
                   <HoverCardTrigger asChild>
                     <a
-                      href="https://github.com/blackscythe123/Agri-Chain#api-endpoints"
+                      href="https://github.com/blackscythe123/FarmLedge#api-endpoints"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="hover:text-foreground transition-colors"
@@ -186,7 +186,7 @@ const Footer = () => {
                 aria-label="GitHub"
               >
                 <a
-                  href="https://github.com/blackscythe123/Agri-Chain"
+                  href="https://github.com/blackscythe123/FarmLedge"
                   target="_blank"
                   rel="noopener noreferrer"
                 >

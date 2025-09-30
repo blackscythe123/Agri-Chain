@@ -1,4 +1,4 @@
-# Agri-Chain
+# FarmLedge
 
 > **A transparent agricultural supply chain platform**  
 > Batches registered on-chain with INR pricing; purchases via Stripe; a verifier account transfers ownership on-chain after payment.
@@ -7,7 +7,7 @@
 
 ## 🚀 Tech Stack
 
-The following technologies power **Agri-Chain**, along with their icons and usage:
+The following technologies power **FarmLedge**, along with their icons and usage:
 
 <details>
 <summary>Frontend</summary>
@@ -92,8 +92,8 @@ The following technologies power **Agri-Chain**, along with their icons and usag
 
 ```bash
 # Clone the repo
-git clone https://github.com/blackscythe123/Agri-Chain.git
-cd Agri-Chain
+git clone https://github.com/blackscythe123/FarmLedge.git
+cd FarmLedge
 
 # Install dependencies
 npm install
@@ -161,7 +161,7 @@ Response returns a transaction hash on success.
 ℹ️ API Documentation Link
 
 The footer "API Documentation" link points to this README’s API section on GitHub:  
-https://github.com/blackscythe123/Agri-Chain#api-endpoints
+https://github.com/blackscythe123/FarmLedge#api-endpoints
 
 🎨 Frontend Highlights
 
