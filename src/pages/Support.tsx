@@ -25,7 +25,7 @@ const Support = () => {
           <Card className="p-6 space-y-2">
             <h3 className="font-semibold">Contact</h3>
             <p className="text-sm text-muted-foreground">Need help? Reach us via email.</p>
-            <a href="mailto:contact@agrichain.com"><Button size="sm">Email Support</Button></a>
+            <a href="mailto:contact@FarmLedge.com"><Button size="sm">Email Support</Button></a>
           </Card>
         </div>
       </main>

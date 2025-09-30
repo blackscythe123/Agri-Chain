@@ -37,7 +37,7 @@ const Navigation = () => {
               <Leaf className="w-6 h-6 text-primary-foreground" />
             </div>
             <div className="leading-tight">
-              <h1 className="font-bold text-base sm:text-lg">AgriChain</h1>
+              <h1 className="font-bold text-base sm:text-lg">FarmLedge</h1>
               <p className="text-[10px] sm:text-xs text-muted-foreground">Transparency Platform</p>
             </div>
           </Link>

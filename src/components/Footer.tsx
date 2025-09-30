@@ -26,7 +26,7 @@ const Footer = () => {
                 <Leaf className="w-6 h-6 text-primary-foreground" />
               </div>
               <div>
-                <h3 className="font-bold text-lg">AgriChain</h3>
+                <h3 className="font-bold text-lg">FarmLedge</h3>
                 <p className="text-sm text-muted-foreground">Transparency Platform</p>
               </div>
             </div>
@@ -158,7 +158,7 @@ const Footer = () => {
             <div className="space-y-3">
               <div className="flex items-center gap-3 text-sm text-muted-foreground">
                 <Mail className="w-4 h-4" />
-                <span>contact@agrichain.com</span>
+                <span>contact@FarmLedge.com</span>
               </div>
               <div className="flex items-center gap-3 text-sm text-muted-foreground">
                 <Phone className="w-4 h-4" />
