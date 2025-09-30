@@ -1,7 +1,7 @@
 {
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "https://FarmLedge-production.up.railway.app/api/$1" },
-    { "source": "/create-checkout-session", "destination": "https://FarmLedge-production.up.railway.app/create-checkout-session" },
+    { "source": "/api/(.*)", "destination": "https://agri-chain-production.up.railway.app/api/$1" },
+    { "source": "/create-checkout-session", "destination": "https://agri-chain-production.up.railway.app/create-checkout-session" },
     { "source": "/((?!api|create-checkout-session|.*\\..*).*)", "destination": "/" }
   ]
 }
