@@ -1,7 +1,7 @@
 # FarmLedge
 
 > **A transparent agricultural supply chain platform**  
-> Batches registered on-chain with INR pricing; purchases via Stripe; a verifier account transfers ownership on-chain after payment.
+> Batches registered on-chain with purchases via Stripe; a verifier account transfers ownership on-chain after payment.
 
 ---
 
